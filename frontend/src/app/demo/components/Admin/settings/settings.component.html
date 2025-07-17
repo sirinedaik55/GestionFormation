@@ -1,0 +1,447 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>System Settings</h5>
+            <p-toast></p-toast>
+            <p-confirmDialog></p-confirmDialog>
+
+            <p-tabView [(activeIndex)]="activeTab">
+
+                <!-- System Settings Tab -->
+                <p-tabPanel header="System" leftIcon="pi pi-cog">
+                    <div class="card">
+                        <h6>General System Settings</h6>
+
+                        <div class="grid">
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="siteName">Site Name</label>
+                                    <input
+                                        id="siteName"
+                                        type="text"
+                                        pInputText
+                                        [(ngModel)]="systemSettings.siteName"
+                                        class="w-full">
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="adminEmail">Admin Email</label>
+                                    <input
+                                        id="adminEmail"
+                                        type="email"
+                                        pInputText
+                                        [(ngModel)]="systemSettings.adminEmail"
+                                        class="w-full">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="siteDescription">Site Description</label>
+                                    <textarea
+                                        id="siteDescription"
+                                        pInputTextarea
+                                        [(ngModel)]="systemSettings.siteDescription"
+                                        rows="3"
+                                        class="w-full">
+                                    </textarea>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="defaultLanguage">Default Language</label>
+                                    <p-dropdown
+                                        id="defaultLanguage"
+                                        [(ngModel)]="systemSettings.defaultLanguage"
+                                        [options]="languageOptions"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        class="w-full">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="timezone">Timezone</label>
+                                    <p-dropdown
+                                        id="timezone"
+                                        [(ngModel)]="systemSettings.timezone"
+                                        [options]="timezoneOptions"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        class="w-full">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="dateFormat">Date Format</label>
+                                    <p-dropdown
+                                        id="dateFormat"
+                                        [(ngModel)]="systemSettings.dateFormat"
+                                        [options]="dateFormatOptions"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        class="w-full">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="timeFormat">Time Format</label>
+                                    <p-dropdown
+                                        id="timeFormat"
+                                        [(ngModel)]="systemSettings.timeFormat"
+                                        [options]="timeFormatOptions"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        class="w-full">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="maxFileSize">Max File Size (MB)</label>
+                                    <p-inputNumber
+                                        id="maxFileSize"
+                                        [(ngModel)]="systemSettings.maxFileSize"
+                                        [min]="1"
+                                        [max]="100"
+                                        class="w-full">
+                                    </p-inputNumber>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="backupFrequency">Backup Frequency</label>
+                                    <p-dropdown
+                                        id="backupFrequency"
+                                        [(ngModel)]="systemSettings.backupFrequency"
+                                        [options]="backupFrequencyOptions"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        class="w-full">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid mt-4">
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="emailNotifications"
+                                        [(ngModel)]="systemSettings.emailNotifications"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="emailNotifications">Enable Email Notifications</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="smsNotifications"
+                                        [(ngModel)]="systemSettings.smsNotifications"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="smsNotifications">Enable SMS Notifications</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="autoBackup"
+                                        [(ngModel)]="systemSettings.autoBackup"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="autoBackup">Enable Auto Backup</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="maintenanceMode"
+                                        [(ngModel)]="systemSettings.maintenanceMode"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="maintenanceMode">Maintenance Mode</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 mt-4">
+                            <p-button
+                                label="Save Settings"
+                                icon="pi pi-save"
+                                [loading]="savingSystem"
+                                (onClick)="saveSystemSettings()">
+                            </p-button>
+                            <p-button
+                                label="Reset to Default"
+                                icon="pi pi-refresh"
+                                class="p-button-secondary"
+                                (onClick)="resetSystemSettings()">
+                            </p-button>
+                            <p-button
+                                label="Export Settings"
+                                icon="pi pi-download"
+                                class="p-button-info"
+                                (onClick)="exportSettings()">
+                            </p-button>
+                        </div>
+                    </div>
+                </p-tabPanel>
+
+                <!-- Notifications Tab -->
+                <p-tabPanel header="Notifications" leftIcon="pi pi-bell">
+                    <div class="card">
+                        <h6>Notification Settings</h6>
+
+                        <div class="grid">
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="formationReminder"
+                                        [(ngModel)]="notificationSettings.formationReminder"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="formationReminder">Formation Reminders</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="attendanceAlert"
+                                        [(ngModel)]="notificationSettings.attendanceAlert"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="attendanceAlert">Attendance Alerts</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="reportGeneration"
+                                        [(ngModel)]="notificationSettings.reportGeneration"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="reportGeneration">Report Generation</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="systemUpdates"
+                                        [(ngModel)]="notificationSettings.systemUpdates"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="systemUpdates">System Updates</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="reminderDays">Reminder Days Before</label>
+                                    <p-inputNumber
+                                        id="reminderDays"
+                                        [(ngModel)]="notificationSettings.reminderDays"
+                                        [min]="1"
+                                        [max]="30"
+                                        class="w-full">
+                                    </p-inputNumber>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="emailTemplate">Email Template</label>
+                                    <p-dropdown
+                                        id="emailTemplate"
+                                        [(ngModel)]="notificationSettings.emailTemplate"
+                                        [options]="emailTemplateOptions"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        class="w-full">
+                                    </p-dropdown>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 mt-4">
+                            <p-button
+                                label="Save Notifications"
+                                icon="pi pi-save"
+                                [loading]="savingNotifications"
+                                (onClick)="saveNotificationSettings()">
+                            </p-button>
+                            <p-button
+                                label="Test Email"
+                                icon="pi pi-send"
+                                class="p-button-info"
+                                (onClick)="testEmailNotification()">
+                            </p-button>
+                        </div>
+                    </div>
+                </p-tabPanel>
+
+                <!-- Security Tab -->
+                <p-tabPanel header="Security" leftIcon="pi pi-shield">
+                    <div class="card">
+                        <h6>Security Settings</h6>
+
+                        <div class="grid">
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="passwordMinLength">Password Min Length</label>
+                                    <p-inputNumber
+                                        id="passwordMinLength"
+                                        [(ngModel)]="securitySettings.passwordMinLength"
+                                        [min]="6"
+                                        [max]="20"
+                                        class="w-full">
+                                    </p-inputNumber>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="sessionTimeout">Session Timeout (minutes)</label>
+                                    <p-inputNumber
+                                        id="sessionTimeout"
+                                        [(ngModel)]="securitySettings.sessionTimeout"
+                                        [min]="5"
+                                        [max]="120"
+                                        class="w-full">
+                                    </p-inputNumber>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="maxLoginAttempts">Max Login Attempts</label>
+                                    <p-inputNumber
+                                        id="maxLoginAttempts"
+                                        [(ngModel)]="securitySettings.maxLoginAttempts"
+                                        [min]="3"
+                                        [max]="10"
+                                        class="w-full">
+                                    </p-inputNumber>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="lockoutDuration">Lockout Duration (minutes)</label>
+                                    <p-inputNumber
+                                        id="lockoutDuration"
+                                        [(ngModel)]="securitySettings.lockoutDuration"
+                                        [min]="5"
+                                        [max]="60"
+                                        class="w-full">
+                                    </p-inputNumber>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid mt-4">
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="passwordRequireUppercase"
+                                        [(ngModel)]="securitySettings.passwordRequireUppercase"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="passwordRequireUppercase">Require Uppercase</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="passwordRequireNumbers"
+                                        [(ngModel)]="securitySettings.passwordRequireNumbers"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="passwordRequireNumbers">Require Numbers</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="passwordRequireSymbols"
+                                        [(ngModel)]="securitySettings.passwordRequireSymbols"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="passwordRequireSymbols">Require Symbols</label>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <div class="field-checkbox">
+                                    <p-checkbox
+                                        id="twoFactorAuth"
+                                        [(ngModel)]="securitySettings.twoFactorAuth"
+                                        [binary]="true">
+                                    </p-checkbox>
+                                    <label for="twoFactorAuth">Two-Factor Authentication</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 mt-4">
+                            <p-button
+                                label="Save Security"
+                                icon="pi pi-save"
+                                [loading]="savingSecurity"
+                                (onClick)="saveSecuritySettings()">
+                            </p-button>
+                        </div>
+                    </div>
+                </p-tabPanel>
+
+                <!-- Maintenance Tab -->
+                <p-tabPanel header="Maintenance" leftIcon="pi pi-wrench">
+                    <div class="card">
+                        <h6>System Maintenance</h6>
+
+                        <div class="grid">
+                            <div class="col-12 md:col-4">
+                                <div class="card text-center">
+                                    <i class="pi pi-database text-4xl text-blue-500 mb-3"></i>
+                                    <h6>Database Backup</h6>
+                                    <p class="text-600">Perform manual database backup</p>
+                                    <p-button
+                                        label="Backup Now"
+                                        icon="pi pi-download"
+                                        class="p-button-info"
+                                        (onClick)="performBackup()">
+                                    </p-button>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <div class="card text-center">
+                                    <i class="pi pi-refresh text-4xl text-green-500 mb-3"></i>
+                                    <h6>Clear Cache</h6>
+                                    <p class="text-600">Clear system cache and temporary files</p>
+                                    <p-button
+                                        label="Clear Cache"
+                                        icon="pi pi-trash"
+                                        class="p-button-success"
+                                        (onClick)="clearCache()">
+                                    </p-button>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <div class="card text-center">
+                                    <i class="pi pi-cog text-4xl text-orange-500 mb-3"></i>
+                                    <h6>System Info</h6>
+                                    <p class="text-600">View system information and logs</p>
+                                    <p-button
+                                        label="View Info"
+                                        icon="pi pi-info-circle"
+                                        class="p-button-warning"
+                                        [disabled]="true">
+                                    </p-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </p-tabPanel>
+
+            </p-tabView>
+        </div>
+    </div>
+</div>

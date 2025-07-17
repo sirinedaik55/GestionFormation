@@ -1,0 +1,225 @@
+
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedFormations()" [disabled]="!selectedFormations || !selectedFormations.length"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="formations" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                     [globalFilterFields]="['name','description']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]"
+                     [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} formations"
+                     [(selection)]="selectedFormations" selectionMode="multiple" [rowHover]="true" dataKey="id">
+
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Manage Formations</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                        <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="date">Date <p-sortIcon field="date"></p-sortIcon></th>
+                        <th pSortableColumn="duree">Duration <p-sortIcon field="duree"></p-sortIcon></th>
+                        <th>Team</th>
+                        <th>Trainer</th>
+                        <th>Participants</th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-formation>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="formation"></p-tableCheckbox>
+                        </td>
+                        <td>{{formation.id}}</td>
+                        <td>{{formation.name}}</td>
+                        <td>{{formation.date | date:'short'}}</td>
+                        <td>{{formation.duree}}h</td>
+                        <td>{{getTeamName(formation.equipe_id)}}</td>
+                        <td>{{getTrainerName(formation.formateur_id)}}</td>
+                        <td>
+                            <button pButton pRipple
+                                    label="{{getParticipantCount(formation.id)}} participants"
+                                    icon="pi pi-users"
+                                    class="p-button-text p-button-sm"
+                                    (click)="viewParticipants(formation)">
+                            </button>
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editFormation(formation)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteFormation(formation)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- Formation Dialog -->
+<p-dialog [(visible)]="formationDialog" [style]="{width: '600px'}" header="Formation Details" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label for="name">Name</label>
+                <input type="text" pInputText id="name" [(ngModel)]="formation.name" required autofocus
+                       [ngClass]="{'ng-invalid ng-dirty' : submitted && !formation.name}"/>
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !formation.name">Name is required.</small>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="date">Date</label>
+                <input type="date" pInputText id="date" [(ngModel)]="formation.date" required
+                       [ngClass]="{'ng-invalid ng-dirty' : submitted && !formation.date}"/>
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !formation.date">Date is required.</small>
+            </div>
+        </div>
+        <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label for="duree">Duration (hours)</label>
+                <input type="number" pInputText id="duree" [(ngModel)]="formation.duree" required min="1"
+                       [ngClass]="{'ng-invalid ng-dirty' : submitted && (!formation.duree || formation.duree <= 0)}"/>
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && (!formation.duree || formation.duree <= 0)">Duration is required and must be greater than 0.</small>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="team">Team</label>
+                <p-dropdown id="team" [options]="teams" [(ngModel)]="formation.equipe_id"
+                           optionLabel="name" optionValue="id" placeholder="Select a team" [required]="true"
+                           [ngClass]="{'ng-invalid ng-dirty' : submitted && !formation.equipe_id}"></p-dropdown>
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !formation.equipe_id">Team is required.</small>
+            </div>
+        </div>
+        <div class="field">
+            <label for="trainer">Trainer</label>
+            <p-dropdown id="trainer" [options]="trainers" [(ngModel)]="formation.formateur_id"
+                       optionLabel="name" optionValue="id" placeholder="Select a trainer" [required]="true"
+                       [ngClass]="{'ng-invalid ng-dirty' : submitted && !formation.formateur_id}">
+                <ng-template let-trainer pTemplate="item">
+                    {{trainer.first_name}} {{trainer.last_name}}
+                </ng-template>
+            </p-dropdown>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !formation.formateur_id">Trainer is required.</small>
+        </div>
+        <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label for="room">Room</label>
+                <input type="text" pInputText id="room" [(ngModel)]="formation.room"
+                       placeholder="e.g., Room A101, Conference Room 1"/>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="status">Status</label>
+                <p-dropdown id="status" [options]="statusOptions" [(ngModel)]="formation.status"
+                           optionLabel="label" optionValue="value" placeholder="Select status"></p-dropdown>
+            </div>
+        </div>
+        <div class="field">
+            <label for="description">Description</label>
+            <textarea pInputTextarea id="description" [(ngModel)]="formation.description" rows="3"
+                     placeholder="Optional description"></textarea>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveFormation()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Delete Formation Dialog -->
+<p-dialog [(visible)]="deleteFormationDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="formation">Are you sure you want to delete <b>{{formation.name}}</b>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteFormationDialog = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Delete Formations Dialog -->
+<p-dialog [(visible)]="deleteFormationsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>Are you sure you want to delete selected formations?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteFormationsDialog = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Participants Dialog -->
+<p-dialog [(visible)]="participantsDialog" [style]="{width: '800px'}" header="Formation Participants" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div *ngIf="selectedFormation">
+            <h6>Formation: {{selectedFormation.name}}</h6>
+            <p>Date: {{selectedFormation.date | date:'short'}} | Duration: {{selectedFormation.duree}}h</p>
+
+            <p-table [value]="participants" [loading]="loadingParticipants">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Email</th>
+                        <th>Team</th>
+                        <th>Status</th>
+                        <th>Attendance</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-participant>
+                    <tr>
+                        <td>{{participant.user?.first_name}} {{participant.user?.last_name}}</td>
+                        <td>{{participant.user?.email}}</td>
+                        <td>{{participant.user?.team?.name}}</td>
+                        <td>
+                            <span [class]="'participant-badge status-' + participant.status">
+                                {{participant.status | titlecase}}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="flex align-items-center gap-2">
+                                <button pButton pRipple
+                                        label="Present"
+                                        [class]="participant.attendance === 'present' ? 'p-button-success' : 'p-button-outlined'"
+                                        class="p-button-sm"
+                                        (click)="markAttendance(participant, 'present')">
+                                </button>
+                                <button pButton pRipple
+                                        label="Absent"
+                                        [class]="participant.attendance === 'absent' ? 'p-button-danger' : 'p-button-outlined'"
+                                        class="p-button-sm"
+                                        (click)="markAttendance(participant, 'absent')">
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5">No participants found.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-text" (click)="hideParticipantsDialog()"></button>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,105 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedTeams()" [disabled]="!selectedTeams || !selectedTeams.length"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            
+            <p-table #dt [value]="teams" [columns]="cols" responsiveLayout="scroll" [rows]="10" 
+                     [globalFilterFields]="['name','speciality']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" 
+                     [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} teams" 
+                     [(selection)]="selectedTeams" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Manage Teams</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                        <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="speciality">Speciality <p-sortIcon field="speciality"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-team>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="team"></p-tableCheckbox>
+                        </td>
+                        <td>{{team.id}}</td>
+                        <td>{{team.name}}</td>
+                        <td>{{team.speciality || 'N/A'}}</td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editTeam(team)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteTeam(team)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- Team Dialog -->
+<p-dialog [(visible)]="teamDialog" [style]="{width: '450px'}" header="Team Details" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="name">Name</label>
+            <input type="text" pInputText id="name" [(ngModel)]="team.name" required autofocus 
+                   [ngClass]="{'ng-invalid ng-dirty' : submitted && !team.name}"/>
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !team.name">Name is required.</small>
+        </div>
+        <div class="field">
+            <label for="speciality">Speciality</label>
+            <input type="text" pInputText id="speciality" [(ngModel)]="team.speciality" 
+                   placeholder="e.g., Development, UI/UX, Security"/>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveTeam()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Delete Team Dialog -->
+<p-dialog [(visible)]="deleteTeamDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="team">Are you sure you want to delete <b>{{team.name}}</b>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteTeamDialog = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Delete Teams Dialog -->
+<p-dialog [(visible)]="deleteTeamsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>Are you sure you want to delete selected teams?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteTeamsDialog = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
+    </ng-template>
+</p-dialog>

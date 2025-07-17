@@ -1,0 +1,64 @@
+<div class="grid">
+  <div class="col-12">
+	<div class="card">
+	  <h5>Training List</h5>
+	  <p-table #dt1 [value]="formations" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" [globalFilterFields]="['name','trainer','status','room','team']" responsiveLayout="scroll">
+		<ng-template pTemplate="caption">
+		  <div class="flex justify-content-between flex-column sm:flex-row">
+			<button pButton label="Clear" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clear(dt1)"></button>
+			<span class="p-input-icon-left mb-2">
+			  <i class="pi pi-search"></i>
+			  <input pInputText type="text" #filter (input)="onGlobalFilter(dt1, $event)" placeholder="Search Keyword" class="w-full"/>
+			</span>
+		  </div>
+		</ng-template>
+		<ng-template pTemplate="header">
+		  <tr>
+			<th>Name <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter></th>
+			<th>Trainer <p-columnFilter type="text" field="trainer" display="menu" placeholder="Search by trainer"></p-columnFilter></th>
+			<th>Date <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter></th>
+			<th>Duration <p-columnFilter type="text" field="duration" display="menu" placeholder="Search by duration"></p-columnFilter></th>
+			<th>Team <p-columnFilter type="text" field="team" display="menu" placeholder="Search by team"></p-columnFilter></th>
+			<th>Room <p-columnFilter type="text" field="room" display="menu" placeholder="Search by room"></p-columnFilter></th>
+			<th>Status <p-columnFilter field="status" matchMode="equals" display="menu">
+			  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+				<p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)" placeholder="Any" [style]="{'min-width': '12rem'}" >
+				  <ng-template let-option pTemplate="item">
+					<span [class]="'formation-badge status-' + option.value">{{option.label}}</span>
+				  </ng-template>
+				</p-dropdown>
+			  </ng-template>
+			</p-columnFilter></th>
+			<th>Description</th>
+		  </tr>
+		</ng-template>
+		<ng-template pTemplate="body" let-formation>
+		  <tr>
+			<td>{{formation.name}}</td>
+			<td>{{getTrainerName(formation.formateur_id)}}</td>
+			<td>{{formation.date | date: 'MM/dd/yyyy'}}</td>
+			<td>{{formation.duree}}h</td>
+			<td>{{getTeamName(formation.equipe_id)}}</td>
+			<td>{{formation.room || '-'}}</td>
+			<td><span [class]="'formation-badge status-' + (formation.status || 'active')">{{formation.status || 'Active'}}</span></td>
+			<td>{{formation.description}}</td>
+		  </tr>
+		</ng-template>
+		<ng-template pTemplate="emptymessage">
+		  <tr>
+			<td colspan="8">No formations found.</td>
+		  </tr>
+		</ng-template>
+		<ng-template pTemplate="loadingbody">
+		  <tr>
+			<td colspan="8">Loading formations data. Please wait.</td>
+		  </tr>
+		</ng-template>
+	  </p-table>
+	<!-- End of Training List Card -->
+  </div>
+<!-- Removed extra closing div -->
+</div>
+
+	<!-- All obsolete formation tables/views removed. Only main Training List remains. -->
+</div>

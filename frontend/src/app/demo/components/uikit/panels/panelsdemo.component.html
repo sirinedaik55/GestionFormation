@@ -1,0 +1,137 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5><i class="pi pi-comments mr-2"></i>Discussion Panel</h5>
+            <p class="text-600 mb-4">Communicate with admins, trainers, and employees</p>
+
+            <div class="grid">
+                <!-- Users List -->
+                <div class="col-12 md:col-4">
+                    <div class="card mb-0" style="height: 500px;">
+                        <h6>Online Users</h6>
+                        <div class="flex flex-column gap-2">
+                            <div
+                                class="p-3 border-round cursor-pointer hover:surface-hover"
+                                [class.surface-200]="!selectedUser"
+                                (click)="clearSelection()">
+                                <div class="flex align-items-center">
+                                    <i class="pi pi-users text-primary mr-2"></i>
+                                    <span class="font-medium">All Users</span>
+                                </div>
+                            </div>
+
+                            <div
+                                *ngFor="let user of users"
+                                class="p-3 border-round cursor-pointer hover:surface-hover"
+                                [class.surface-200]="selectedUser?.id === user.id"
+                                (click)="selectUser(user)">
+                                <div class="flex align-items-center justify-content-between">
+                                    <div class="flex align-items-center">
+                                        <div class="relative mr-3">
+                                            <i class="pi pi-user text-600"></i>
+                                            <span
+                                                class="absolute border-circle"
+                                                [class.bg-green-500]="user.isOnline"
+                                                [class.bg-gray-400]="!user.isOnline"
+                                                style="width: 8px; height: 8px; top: -2px; right: -2px;">
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">{{user.name}}</div>
+                                            <p-badge
+                                                [value]="user.role"
+                                                [class]="getRoleBadgeClass(user.role)"
+                                                size="small">
+                                            </p-badge>
+                                        </div>
+                                    </div>
+                                    <small class="text-500" *ngIf="!user.isOnline && user.lastSeen">
+                                        {{user.lastSeen | date:'short'}}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Messages Area -->
+                <div class="col-12 md:col-8">
+                    <div class="card mb-0" style="height: 500px; display: flex; flex-direction: column;">
+                        <!-- Messages Header -->
+                        <div class="flex align-items-center justify-content-between pb-3 border-bottom-1 surface-border">
+                            <h6 class="m-0">
+                                <i class="pi pi-comment mr-2"></i>
+                                {{selectedUser ? 'Chat with ' + selectedUser.name : 'General Discussion'}}
+                            </h6>
+                            <p-button
+                                *ngIf="selectedUser"
+                                icon="pi pi-times"
+                                class="p-button-text p-button-sm"
+                                (click)="clearSelection()">
+                            </p-button>
+                        </div>
+
+                        <!-- Messages List -->
+                        <div class="flex-1 overflow-auto p-3" style="max-height: 350px;">
+                            <div *ngFor="let message of getFilteredMessages()" class="mb-3">
+                                <div class="flex align-items-start gap-3">
+                                    <div class="flex-shrink-0">
+                                        <i class="pi pi-user-circle text-2xl" [class]="getRoleColor(message.senderRole)"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex align-items-center gap-2 mb-1">
+                                            <span class="font-medium">{{message.senderName}}</span>
+                                            <p-badge
+                                                [value]="message.senderRole"
+                                                [class]="getRoleBadgeClass(message.senderRole)"
+                                                size="small">
+                                            </p-badge>
+                                            <small class="text-500">{{message.timestamp | date:'short'}}</small>
+                                        </div>
+                                        <p class="m-0 text-700 line-height-3">{{message.content}}</p>
+                                        <div class="flex align-items-center gap-2 mt-2" *ngIf="message.senderId === currentUser.id">
+                                            <p-button
+                                                icon="pi pi-trash"
+                                                class="p-button-text p-button-sm p-button-danger"
+                                                (click)="deleteMessage(message.id)"
+                                                pTooltip="Delete message">
+                                            </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div *ngIf="getFilteredMessages().length === 0" class="text-center text-500 py-4">
+                                <i class="pi pi-comment text-4xl mb-3"></i>
+                                <p>No messages yet. Start the conversation!</p>
+                            </div>
+                        </div>
+
+                        <!-- Message Input -->
+                        <div class="border-top-1 surface-border pt-3">
+                            <div class="flex gap-2">
+                                <input
+                                    type="text"
+                                    pInputText
+                                    [(ngModel)]="newMessage"
+                                    placeholder="Type your message..."
+                                    class="flex-1"
+                                    (keyup.enter)="sendMessage()">
+                                <p-button
+                                    icon="pi pi-send"
+                                    (click)="sendMessage()"
+                                    [disabled]="!newMessage.trim()">
+                                </p-button>
+                            </div>
+                            <small class="text-500 mt-2 block" *ngIf="selectedUser">
+                                Sending private message to {{selectedUser.name}}
+                            </small>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

@@ -1,0 +1,50 @@
+<div class="layout-topbar">
+    <a class="layout-topbar-logo" routerLink="">
+        <img src="assets/layout/images/{{layoutService.config.colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="logo">
+        <span>Formation</span>
+    </a>
+
+    <button class="p-link layout-menu-button layout-topbar-button p-trigger" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+    </button>
+
+    <button class="p-link layout-topbar-menu-button layout-topbar-button p-trigger" (click)="layoutService.showProfileSidebar()">
+        <i class="pi pi-ellipsis-v"></i>
+    </button>
+
+    <div class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+        <!-- User Info Display -->
+        <div class="layout-topbar-button" *ngIf="currentUser">
+            <div class="flex align-items-center gap-2">
+                <i class="pi pi-user-circle text-2xl"></i>
+                <div class="flex flex-column">
+                    <span class="font-medium text-sm">{{currentUser.name || currentUser.username}}</span>
+                    <p-badge
+                        [value]="getPrimaryRole()"
+                        [class]="getRoleBadgeClass()"
+                        size="small">
+                    </p-badge>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Menu -->
+        <p-menu #userMenu [model]="items" [popup]="true"></p-menu>
+        <button
+            class="p-link layout-topbar-button"
+            (click)="userMenu.toggle($event)"
+            *ngIf="currentUser">
+            <i class="pi pi-angle-down"></i>
+            <span>Menu</span>
+        </button>
+
+        <!-- Logout Button -->
+        <button
+            class="p-link layout-topbar-button text-red-500"
+            (click)="logout()"
+            *ngIf="currentUser">
+            <i class="pi pi-sign-out"></i>
+            <span>Logout</span>
+        </button>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+</head>
+<body>
+    <h1>Test API Backend</h1>
+    <div id="results"></div>
+
+    <script>
+        const baseUrl = 'http://localhost:8000/api';
+        const resultsDiv = document.getElementById('results');
+
+        async function testAPI() {
+            const tests = [
+                { name: 'Get Users', url: `${baseUrl}/users` },
+                { name: 'Get Teams', url: `${baseUrl}/teams` },
+                { name: 'Get Formations', url: `${baseUrl}/formations` },
+                { name: 'Get Employees', url: `${baseUrl}/users?role=employe` },
+                { name: 'Get Trainers', url: `${baseUrl}/users?role=formateur` }
+            ];
+
+            for (const test of tests) {
+                try {
+                    const response = await fetch(test.url);
+                    const data = await response.json();
+                    resultsDiv.innerHTML += `<h3>${test.name}: ✅ Success</h3><pre>${JSON.stringify(data, null, 2)}</pre><hr>`;
+                } catch (error) {
+                    resultsDiv.innerHTML += `<h3>${test.name}: ❌ Error</h3><pre>${error.message}</pre><hr>`;
+                }
+            }
+        }
+
+        testAPI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+    <div class="grid">
+        <!-- Header -->
+        <div class="col-12">
+            <div class="card">
+                <div class="flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="text-900 font-medium text-3xl mb-2">Formation Management Dashboard</h2>
+                        <p class="text-600 mb-0">Welcome to your training management system overview</p>
+                    </div>
+                    <div class="flex align-items-center">
+                        <i class="pi pi-calendar text-blue-500 text-2xl mr-2"></i>
+                        <span class="text-900 font-medium">{{getCurrentDate()}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="col-12">
+            <div class="card">
+                <div class="flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+                    <span class="ml-2">Loading dashboard...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div *ngIf="!loading && dashboardStats" class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0">
+                <div class="flex justify-content-between mb-3">
+                    <div>
+                        <span class="block text-500 font-medium mb-3">Total Formations</span>
+                        <div class="text-900 font-medium text-xl">{{dashboardStats.totalFormations}}</div>
+                    </div>
+                    <div class="flex align-items-center justify-content-center bg-blue-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                        <i class="pi pi-calendar text-blue-500 text-xl"></i>
+                    </div>
+                </div>
+                <span class="text-green-500 font-medium">{{dashboardStats.upcomingFormations}} upcoming </span>
+                <span class="text-500">formations</span>
+            </div>
+        </div>
+        <div *ngIf="!loading && dashboardStats" class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0">
+                <div class="flex justify-content-between mb-3">
+                    <div>
+                        <span class="block text-500 font-medium mb-3">Total Employees</span>
+                        <div class="text-900 font-medium text-xl">{{dashboardStats.totalEmployees}}</div>
+                    </div>
+                    <div class="flex align-items-center justify-content-center bg-orange-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                        <i class="pi pi-users text-orange-500 text-xl"></i>
+                    </div>
+                </div>
+                <span class="text-green-500 font-medium">{{dashboardStats.totalTeams}} teams </span>
+                <span class="text-500">organized</span>
+            </div>
+        </div>
+        <div *ngIf="!loading && dashboardStats" class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0">
+                <div class="flex justify-content-between mb-3">
+                    <div>
+                        <span class="block text-500 font-medium mb-3">Trainers</span>
+                        <div class="text-900 font-medium text-xl">{{dashboardStats.totalTrainers}}</div>
+                    </div>
+                    <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                        <i class="pi pi-user text-cyan-500 text-xl"></i>
+                    </div>
+                </div>
+                <span class="text-green-500 font-medium">Active </span>
+                <span class="text-500">trainers available</span>
+            </div>
+        </div>
+        <div *ngIf="!loading && dashboardStats" class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0">
+                <div class="flex justify-content-between mb-3">
+                    <div>
+                        <span class="block text-500 font-medium mb-3">Attendance Rate</span>
+                        <div class="text-900 font-medium text-xl">{{dashboardStats.globalAttendanceRate}}%</div>
+                    </div>
+                    <div class="flex align-items-center justify-content-center bg-purple-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                        <i class="pi pi-chart-line text-purple-500 text-xl"></i>
+                    </div>
+                </div>
+                <span class="text-green-500 font-medium">Global </span>
+                <span class="text-500">attendance rate</span>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div *ngIf="!loading" class="col-12">
+            <div class="card">
+                <h5>Quick Actions</h5>
+                <div class="grid">
+                    <div class="col-12 md:col-6 lg:col-3">
+                        <button pButton pRipple
+                                label="New Formation"
+                                icon="pi pi-plus"
+                                class="p-button-success w-full mb-2"
+                                routerLink="/uikit/formlayout">
+                        </button>
+                    </div>
+                    <div class="col-12 md:col-6 lg:col-3">
+                        <button pButton pRipple
+                                label="Manage Users"
+                                icon="pi pi-users"
+                                class="p-button-info w-full mb-2"
+                                routerLink="/uikit/crud/employees">
+                        </button>
+                    </div>
+                    <div class="col-12 md:col-6 lg:col-3">
+                        <button pButton pRipple
+                                label="View Statistics"
+                                icon="pi pi-chart-bar"
+                                class="p-button-warning w-full mb-2"
+                                routerLink="/uikit/statistics">
+                        </button>
+                    </div>
+                    <div class="col-12 md:col-6 lg:col-3">
+                        <button pButton pRipple
+                                label="Manage Teams"
+                                icon="pi pi-sitemap"
+                                class="p-button-help w-full mb-2"
+                                routerLink="/uikit/crud/teams">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Formations Table -->
+        <div *ngIf="!loading" class="col-12 xl:col-8">
+            <div class="card">
+                <div class="flex justify-content-between align-items-center mb-5">
+                    <h5>Recent Formations</h5>
+                    <button pButton pRipple
+                            label="View All"
+                            icon="pi pi-arrow-right"
+                            class="p-button-text"
+                            routerLink="/uikit/listtrain">
+                    </button>
+                </div>
+                <p-table [value]="recentFormations" [loading]="loadingFormations" responsiveLayout="scroll">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Formation</th>
+                            <th>Date</th>
+                            <th>Team</th>
+                            <th>Trainer</th>
+                            <th>Status</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-formation>
+                        <tr>
+                            <td>{{formation.name}}</td>
+                            <td>{{formation.date | date:'short'}}</td>
+                            <td>{{formation.team}}</td>
+                            <td>{{formation.trainer}}</td>
+                            <td>
+                                <span class="p-tag"
+                                      [ngClass]="{
+                                        'p-tag-success': formation.status === 'completed',
+                                        'p-tag-warning': formation.status === 'scheduled',
+                                        'p-tag-danger': formation.status === 'cancelled'
+                                      }">
+                                    {{formation.status}}
+                                </span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="5" class="text-center">No formations found</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div *ngIf="!loading" class="col-12 xl:col-4">
+            <div class="card">
+                <div class="flex justify-content-between align-items-center mb-5">
+                    <h5>Recent Activity</h5>
+                </div>
+                <ul class="list-none p-0 m-0">
+                    <li *ngFor="let activity of recentActivities" class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">{{activity.title}}</span>
+                            <div class="mt-1 text-600">{{activity.description}}</div>
+                            <div class="mt-1 text-500 text-sm">{{activity.time}}</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 flex align-items-center">
+                            <i class="pi" [ngClass]="activity.icon" [style.color]="activity.color"></i>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="flex justify-content-between align-items-center mb-5">
+                    <h5>Recent Activity</h5>
+                </div>
+                <ul class="list-none p-0 m-0">
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Formation Created</span>
+                            <div class="mt-1 text-600">Web Development Training</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
+                                <div class="bg-green-500 h-full" [ngStyle]="{width: '100%'}"></div>
+                            </div>
+                            <span class="text-green-500 ml-3 font-medium">Active</span>
+                        </div>
+                    </li>
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Employee Registered</span>
+                            <div class="mt-1 text-600">New team member added</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
+                                <div class="bg-cyan-500 h-full" [ngStyle]="{width: '80%'}"></div>
+                            </div>
+                            <span class="text-cyan-500 ml-3 font-medium">Recent</span>
+                        </div>
+                    </li>
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Training Completed</span>
+                            <div class="mt-1 text-600">UI/UX Design Workshop</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
+                                <div class="bg-pink-500 h-full" [ngStyle]="{width: '90%'}"></div>
+                            </div>
+                            <span class="text-pink-500 ml-3 font-medium">90% Attendance</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div *ngIf="!loading" class="col-12 xl:col-6">
+            <div class="card">
+                <h5>Formations Overview</h5>
+                <p-chart type="line" [data]="chartData" [options]="chartOptions"></p-chart>
+            </div>
+        </div>
+
+

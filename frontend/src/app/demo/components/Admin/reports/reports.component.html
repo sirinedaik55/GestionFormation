@@ -1,0 +1,305 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Reports Dashboard</h5>
+            <p-toast></p-toast>
+
+            <!-- Filters Section -->
+            <div class="card mb-4">
+                <h6>Report Filters</h6>
+                <div class="grid">
+                    <div class="col-12 md:col-6 lg:col-3">
+                        <div class="field">
+                            <label for="startDate">Start Date</label>
+                            <p-calendar
+                                id="startDate"
+                                [(ngModel)]="startDate"
+                                dateFormat="yy-mm-dd"
+                                placeholder="Select start date">
+                            </p-calendar>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6 lg:col-3">
+                        <div class="field">
+                            <label for="endDate">End Date</label>
+                            <p-calendar
+                                id="endDate"
+                                [(ngModel)]="endDate"
+                                dateFormat="yy-mm-dd"
+                                placeholder="Select end date">
+                            </p-calendar>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6 lg:col-3">
+                        <div class="field">
+                            <label for="teamFilter">Team</label>
+                            <p-dropdown
+                                id="teamFilter"
+                                [(ngModel)]="filters.teamId"
+                                [options]="teams"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Select team"
+                                [showClear]="true">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6 lg:col-3">
+                        <div class="field">
+                            <label for="trainerFilter">Trainer</label>
+                            <p-dropdown
+                                id="trainerFilter"
+                                [(ngModel)]="filters.trainerId"
+                                [options]="trainers"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Select trainer"
+                                [showClear]="true">
+                            </p-dropdown>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <p-button
+                        label="Apply Filters"
+                        icon="pi pi-filter"
+                        (onClick)="applyFilters()">
+                    </p-button>
+                    <p-button
+                        label="Clear Filters"
+                        icon="pi pi-times"
+                        class="p-button-secondary"
+                        (onClick)="clearFilters()">
+                    </p-button>
+                </div>
+            </div>
+
+            <!-- Reports Tabs -->
+            <p-tabView [(activeIndex)]="selectedTab">
+
+                <!-- Attendance Report Tab -->
+                <p-tabPanel header="Attendance Report" leftIcon="pi pi-check-circle">
+                    <div class="card">
+                        <div class="flex justify-content-between align-items-center mb-4">
+                            <h6>Employee Attendance Report</h6>
+                            <div class="flex gap-2">
+                                <p-button
+                                    label="Export PDF"
+                                    icon="pi pi-file-pdf"
+                                    class="p-button-danger p-button-sm"
+                                    (onClick)="exportAttendancePDF()">
+                                </p-button>
+                                <p-button
+                                    label="Export CSV"
+                                    icon="pi pi-file-excel"
+                                    class="p-button-success p-button-sm"
+                                    (onClick)="exportAttendanceCSV()">
+                                </p-button>
+                            </div>
+                        </div>
+
+                        <p-table
+                            [value]="attendanceReports"
+                            [loading]="loadingAttendance"
+                            [paginator]="true"
+                            [rows]="20"
+                            [showCurrentPageReport]="true"
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                            [rowsPerPageOptions]="[10,20,50]"
+                            styleClass="p-datatable-gridlines">
+
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Email</th>
+                                    <th>Team</th>
+                                    <th>Formation</th>
+                                    <th>Date</th>
+                                    <th>Trainer</th>
+                                    <th>Status</th>
+                                    <th>Attendance Rate</th>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-report>
+                                <tr>
+                                    <td>{{report.employeeName}}</td>
+                                    <td>{{report.email}}</td>
+                                    <td>{{report.team}}</td>
+                                    <td>{{report.formationName}}</td>
+                                    <td>{{report.formationDate | date:'short'}}</td>
+                                    <td>{{report.trainer}}</td>
+                                    <td>
+                                        <p-tag
+                                            [value]="report.status"
+                                            [severity]="getStatusSeverity(report.status)">
+                                        </p-tag>
+                                    </td>
+                                    <td>
+                                        <p-progressBar
+                                            [value]="report.attendanceRate"
+                                            [showValue]="true"
+                                            [style]="{'height': '20px'}">
+                                        </p-progressBar>
+                                    </td>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="8" class="text-center">No attendance data found</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </p-tabPanel>
+
+                <!-- Formation Report Tab -->
+                <p-tabPanel header="Formation Report" leftIcon="pi pi-book">
+                    <div class="card">
+                        <div class="flex justify-content-between align-items-center mb-4">
+                            <h6>Formation Performance Report</h6>
+                            <div class="flex gap-2">
+                                <p-button
+                                    label="Export PDF"
+                                    icon="pi pi-file-pdf"
+                                    class="p-button-danger p-button-sm"
+                                    (onClick)="exportFormationPDF()">
+                                </p-button>
+                                <p-button
+                                    label="Export CSV"
+                                    icon="pi pi-file-excel"
+                                    class="p-button-success p-button-sm"
+                                    (onClick)="exportFormationCSV()">
+                                </p-button>
+                            </div>
+                        </div>
+
+                        <p-table
+                            [value]="formationReports"
+                            [loading]="loadingFormations"
+                            [paginator]="true"
+                            [rows]="15"
+                            styleClass="p-datatable-gridlines">
+
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Formation</th>
+                                    <th>Date</th>
+                                    <th>Trainer</th>
+                                    <th>Team</th>
+                                    <th>Total Participants</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
+                                    <th>Attendance Rate</th>
+                                    <th>Status</th>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-report>
+                                <tr>
+                                    <td>{{report.name}}</td>
+                                    <td>{{report.date | date:'short'}}</td>
+                                    <td>{{report.trainer}}</td>
+                                    <td>{{report.team}}</td>
+                                    <td>{{report.totalParticipants}}</td>
+                                    <td>
+                                        <span class="text-green-600 font-semibold">{{report.presentCount}}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-red-600 font-semibold">{{report.absentCount}}</span>
+                                    </td>
+                                    <td>
+                                        <p-progressBar
+                                            [value]="report.attendanceRate"
+                                            [showValue]="true"
+                                            [style]="{'height': '20px'}">
+                                        </p-progressBar>
+                                    </td>
+                                    <td>
+                                        <p-tag
+                                            [value]="report.status"
+                                            [severity]="getFormationStatusSeverity(report.status)">
+                                        </p-tag>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </p-tabPanel>
+
+                <!-- Team Report Tab -->
+                <p-tabPanel header="Team Report" leftIcon="pi pi-users">
+                    <div class="card">
+                        <div class="flex justify-content-between align-items-center mb-4">
+                            <h6>Team Performance Report</h6>
+                            <div class="flex gap-2">
+                                <p-button
+                                    label="Export PDF"
+                                    icon="pi pi-file-pdf"
+                                    class="p-button-danger p-button-sm"
+                                    (onClick)="exportTeamPDF()">
+                                </p-button>
+                                <p-button
+                                    label="Export CSV"
+                                    icon="pi pi-file-excel"
+                                    class="p-button-success p-button-sm"
+                                    (onClick)="exportTeamCSV()">
+                                </p-button>
+                            </div>
+                        </div>
+
+                        <p-table
+                            [value]="teamReports"
+                            [loading]="loadingTeams"
+                            [paginator]="true"
+                            [rows]="10"
+                            styleClass="p-datatable-gridlines">
+
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Speciality</th>
+                                    <th>Total Employees</th>
+                                    <th>Total Formations</th>
+                                    <th>Completed</th>
+                                    <th>Upcoming</th>
+                                    <th>Avg Attendance Rate</th>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-report>
+                                <tr>
+                                    <td>{{report.name}}</td>
+                                    <td>{{report.speciality || 'N/A'}}</td>
+                                    <td>{{report.totalEmployees}}</td>
+                                    <td>{{report.totalFormations}}</td>
+                                    <td>
+                                        <span class="text-green-600 font-semibold">{{report.completedFormations}}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-blue-600 font-semibold">{{report.upcomingFormations}}</span>
+                                    </td>
+                                    <td>
+                                        <p-progressBar
+                                            [value]="report.averageAttendanceRate"
+                                            [showValue]="true"
+                                            [style]="{'height': '20px'}">
+                                        </p-progressBar>
+                                    </td>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="7" class="text-center">No team data found</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </p-tabPanel>
+
+            </p-tabView>
+        </div>
+    </div>
+</div>

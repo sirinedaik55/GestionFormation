@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Menu Fixes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .info {
+            color: blue;
+        }
+        .fix {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Menu Fixes Test Guide</h1>
+    
+    <div class="test-section">
+        <h3>✅ Fixes Applied</h3>
+        
+        <div class="fix">
+            <h4>1. Logout Button Fixed</h4>
+            <ul>
+                <li>✅ Changed from <code>routerLink</code> to <code>command</code></li>
+                <li>✅ Added proper logout method in component</li>
+                <li>✅ Calls AuthService.logout() and redirects to login</li>
+                <li>✅ Handles errors gracefully</li>
+            </ul>
+        </div>
+
+        <div class="fix">
+            <h4>2. Duplicate Settings Removed</h4>
+            <ul>
+                <li>✅ Removed duplicate "Settings" from ACCOUNT section</li>
+                <li>✅ Kept "Settings" in SYSTEM section for admin configuration</li>
+                <li>✅ Cleaner menu structure</li>
+            </ul>
+        </div>
+
+        <div class="fix">
+            <h4>3. Admin Profile Created</h4>
+            <ul>
+                <li>✅ Created complete profile component</li>
+                <li>✅ Added profile route: <code>/uikit/profile</code></li>
+                <li>✅ Profile editing functionality</li>
+                <li>✅ Admin statistics display</li>
+                <li>✅ Professional profile interface</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🧪 Testing Steps</h3>
+        
+        <div class="test-item">
+            <h4>Test 1: Logout Functionality</h4>
+            <ol>
+                <li>Login to the application: <code>admin@formation.com</code> / <code>admin123</code></li>
+                <li>Navigate to ACCOUNT section in menu</li>
+                <li>Click "Logout" button</li>
+                <li><strong>Expected:</strong> Should redirect to login page</li>
+                <li><strong>Check:</strong> Session should be cleared</li>
+            </ol>
+        </div>
+
+        <div class="test-item">
+            <h4>Test 2: Menu Structure</h4>
+            <ol>
+                <li>Login and check the menu structure</li>
+                <li>Verify ACCOUNT section has only:
+                    <ul>
+                        <li>Profile</li>
+                        <li>Help</li>
+                        <li>Logout</li>
+                    </ul>
+                </li>
+                <li><strong>Expected:</strong> No duplicate "Settings" in ACCOUNT</li>
+                <li><strong>Check:</strong> "Settings" should only be in SYSTEM section</li>
+            </ol>
+        </div>
+
+        <div class="test-item">
+            <h4>Test 3: Admin Profile</h4>
+            <ol>
+                <li>Login and click "Profile" in ACCOUNT section</li>
+                <li>Should navigate to: <code>/uikit/profile</code></li>
+                <li><strong>Expected:</strong> Professional profile page with:
+                    <ul>
+                        <li>Personal information (editable)</li>
+                        <li>Account information (read-only)</li>
+                        <li>Admin statistics</li>
+                        <li>Edit/Save/Cancel functionality</li>
+                    </ul>
+                </li>
+                <li>Test editing profile information</li>
+                <li>Test save and cancel operations</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📋 Expected Results</h3>
+        
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <th>Feature</th>
+                <th>Before</th>
+                <th>After</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td>Logout Button</td>
+                <td>❌ Broken (routerLink)</td>
+                <td>✅ Working (command)</td>
+                <td>Fixed</td>
+            </tr>
+            <tr>
+                <td>Settings Menu</td>
+                <td>❌ Duplicate entries</td>
+                <td>✅ Single entry in SYSTEM</td>
+                <td>Fixed</td>
+            </tr>
+            <tr>
+                <td>Admin Profile</td>
+                <td>❌ Missing/broken</td>
+                <td>✅ Complete profile page</td>
+                <td>Created</td>
+            </tr>
+            <tr>
+                <td>Menu Structure</td>
+                <td>❌ Cluttered</td>
+                <td>✅ Clean and organized</td>
+                <td>Improved</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h3>🔍 Technical Details</h3>
+        
+        <div class="info">
+            <h4>Files Modified:</h4>
+            <ul>
+                <li><code>frontend/src/app/layout/app.menu.component.ts</code> - Menu structure and logout</li>
+                <li><code>frontend/src/app/services/auth.service.ts</code> - Profile methods</li>
+                <li><code>frontend/src/app/demo/components/uikit/uikit-routing.module.ts</code> - Profile route</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h4>Files Created:</h4>
+            <ul>
+                <li><code>frontend/src/app/demo/components/Admin/profile/profile.component.html</code></li>
+                <li><code>frontend/src/app/demo/components/Admin/profile/profile.component.ts</code></li>
+                <li><code>frontend/src/app/demo/components/Admin/profile/profile.module.ts</code></li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h4>New API Methods:</h4>
+            <ul>
+                <li><code>AuthService.getProfile()</code> - Get user profile</li>
+                <li><code>AuthService.updateProfile()</code> - Update user profile</li>
+                <li><code>AppMenuComponent.logout()</code> - Handle logout action</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🚀 Quick Test Links</h3>
+        <p>After logging in, test these direct links:</p>
+        <ul>
+            <li><a href="http://localhost:56138/#/uikit/profile" target="_blank">Admin Profile</a></li>
+            <li><a href="http://localhost:56138/#/uikit/settings" target="_blank">System Settings</a></li>
+            <li><a href="http://localhost:56138" target="_blank">Dashboard</a></li>
+        </ul>
+    </div>
+
+    <script>
+        console.log('Menu fixes test guide loaded');
+        console.log('Test the logout button, profile page, and menu structure');
+    </script>
+</body>
+</html>
