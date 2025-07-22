@@ -410,10 +410,10 @@ export class KeycloakAuthService {
         // Default role-based redirection
         if (user.roles.includes('admin')) {
             this.router.navigate(['/']);
-        } else if (user.roles.includes('trainer')) {
-            this.router.navigate(['/trainer/dashboard']);
-        } else if (user.roles.includes('employee')) {
-            this.router.navigate(['/employee/dashboard']);
+        } else if (user.roles.includes('trainer') || user.roles.includes('formateur')) {
+            this.router.navigate(['/trainer']);
+        } else if (user.roles.includes('employee') || user.roles.includes('employe')) {
+            this.router.navigate(['/employee']);
         } else {
             this.router.navigate(['/']);
         }

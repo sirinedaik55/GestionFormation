@@ -1,0 +1,172 @@
+<div class="grid">
+    <!-- Page Header -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-900 font-semibold mb-2">My Formations</h2>
+                    <p class="text-600 m-0">Manage and view all your assigned formations</p>
+                </div>
+                <div class="flex gap-2">
+                    <p-button 
+                        icon="pi pi-calendar" 
+                        label="Calendar View" 
+                        class="p-button-outlined"
+                        (click)="navigateToCalendar()">
+                    </p-button>
+                    <p-button 
+                        icon="pi pi-refresh" 
+                        label="Refresh" 
+                        class="p-button-outlined"
+                        (click)="refreshFormations()">
+                    </p-button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex align-items-center gap-3">
+                <label for="statusFilter" class="font-medium">Filter by Status:</label>
+                <p-dropdown 
+                    id="statusFilter"
+                    [(ngModel)]="statusFilter" 
+                    [options]="statusOptions" 
+                    optionLabel="label" 
+                    optionValue="value"
+                    placeholder="Select Status"
+                    styleClass="w-12rem">
+                </p-dropdown>
+                <span class="text-500">
+                    Showing {{ filteredFormations.length }} of {{ formations.length }} formations
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formations Table -->
+    <div class="col-12">
+        <div class="card">
+            <div *ngIf="loading" class="text-center py-5">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <p class="text-500 mt-3">Loading formations...</p>
+            </div>
+
+            <div *ngIf="!loading && filteredFormations.length === 0" class="text-center py-5">
+                <i class="pi pi-briefcase text-4xl text-500 mb-3"></i>
+                <p class="text-500">No formations found</p>
+            </div>
+
+            <p-table 
+                *ngIf="!loading && filteredFormations.length > 0"
+                [value]="filteredFormations" 
+                [paginator]="true"
+                [rows]="10"
+                [rowsPerPageOptions]="[5, 10, 20]"
+                responsiveLayout="scroll"
+                [globalFilterFields]="['name', 'description']"
+                #dt>
+                
+                <ng-template pTemplate="caption">
+                    <div class="flex justify-content-between align-items-center">
+                        <h5 class="m-0">Formations List</h5>
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input 
+                                pInputText 
+                                type="text" 
+                                (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                                placeholder="Search formations..." />
+                        </span>
+                    </div>
+                </ng-template>
+                
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="name">
+                            Formation Name <p-sortIcon field="name"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="date">
+                            Date <p-sortIcon field="date"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="duree">
+                            Duration <p-sortIcon field="duree"></p-sortIcon>
+                        </th>
+                        <th>Room</th>
+                        <th pSortableColumn="participantCount">
+                            Participants <p-sortIcon field="participantCount"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="attendanceRate">
+                            Attendance Rate <p-sortIcon field="attendanceRate"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="status">
+                            Status <p-sortIcon field="status"></p-sortIcon>
+                        </th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-formation>
+                    <tr>
+                        <td>
+                            <div class="font-medium text-900">{{ formation.name }}</div>
+                            <div class="text-500 text-sm">{{ formation.description }}</div>
+                        </td>
+                        <td>{{ formatDate(formation.date) }}</td>
+                        <td>{{ formation.duree }}h</td>
+                        <td>{{ formation.room }}</td>
+                        <td>
+                            <div class="flex align-items-center">
+                                <i class="pi pi-users mr-2 text-500"></i>
+                                {{ formation.participantCount || 0 }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex align-items-center" *ngIf="formation.status === 'completed'">
+                                <span class="mr-2">{{ formation.attendanceRate || 0 }}%</span>
+                                <p-progressBar 
+                                    [value]="formation.attendanceRate || 0" 
+                                    [showValue]="false"
+                                    styleClass="w-6rem">
+                                </p-progressBar>
+                            </div>
+                            <span *ngIf="formation.status !== 'completed'" class="text-500">-</span>
+                        </td>
+                        <td>
+                            <p-tag 
+                                [value]="getStatusLabel(formation.status)" 
+                                [severity]="getStatusSeverity(formation.status)">
+                            </p-tag>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <p-button 
+                                    icon="pi pi-eye" 
+                                    class="p-button-rounded p-button-text p-button-sm"
+                                    pTooltip="View Details"
+                                    (click)="viewDetails(formation)">
+                                </p-button>
+                                <p-button 
+                                    icon="pi pi-users" 
+                                    class="p-button-rounded p-button-text p-button-sm"
+                                    pTooltip="Manage Participants"
+                                    [disabled]="formation.status === 'cancelled'">
+                                </p-button>
+                                <p-button 
+                                    icon="pi pi-check-square" 
+                                    class="p-button-rounded p-button-text p-button-sm"
+                                    pTooltip="Take Attendance"
+                                    [disabled]="formation.status !== 'ongoing' && formation.status !== 'upcoming'">
+                                </p-button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

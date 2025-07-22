@@ -8,7 +8,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
-    role: 'admin' | 'trainer' | 'employee';
+    role: 'admin' | 'trainer' | 'employee' | 'formateur' | 'employe';
     team_id?: number;
     team?: string;
     specialite?: string;
@@ -40,7 +40,7 @@ export interface RegisterRequest {
     email: string;
     password: string;
     password_confirmation: string;
-    role: 'admin' | 'trainer' | 'employee';
+    role: 'admin' | 'trainer' | 'employee' | 'formateur' | 'employe';
     team_id?: number;
     phone?: string;
     specialite?: string;
@@ -391,10 +391,12 @@ export class AuthService {
                 this.router.navigate(['/']);
                 break;
             case 'trainer':
-                this.router.navigate(['/trainer/dashboard']);
+            case 'formateur':
+                this.router.navigate(['/trainer']);
                 break;
             case 'employee':
-                this.router.navigate(['/employee/dashboard']);
+            case 'employe':
+                this.router.navigate(['/employee']);
                 break;
             default:
                 this.router.navigate(['/']);

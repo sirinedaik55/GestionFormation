@@ -1,0 +1,196 @@
+<div class="grid">
+    <!-- Header -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-900 font-semibold mb-2">Take Attendance</h2>
+                    <p class="text-600 m-0">Mark attendance for your formation participants</p>
+                </div>
+                <p-button 
+                    icon="pi pi-history" 
+                    label="View History" 
+                    class="p-button-outlined"
+                    (click)="navigateToHistory()">
+                </p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation Selection -->
+    <div class="col-12">
+        <div class="card">
+            <h5>Select Formation</h5>
+            <div class="flex align-items-center gap-3">
+                <label for="formationSelect" class="font-medium">Formation:</label>
+                <p-dropdown 
+                    id="formationSelect"
+                    [(ngModel)]="selectedFormation" 
+                    [options]="availableFormations" 
+                    optionLabel="name" 
+                    placeholder="Select a formation"
+                    styleClass="w-20rem"
+                    (onChange)="onFormationChange()">
+                </p-dropdown>
+                <div *ngIf="selectedFormation" class="text-500">
+                    {{ formatDate(selectedFormation.date) }} - {{ selectedFormation.room }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Stats -->
+    <div class="col-12" *ngIf="selectedFormation && attendanceRecords.length > 0">
+        <div class="card">
+            <h5>Attendance Summary</h5>
+            <div class="grid">
+                <div class="col-6 md:col-3">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-900">{{ getAttendanceStats().total }}</div>
+                        <div class="text-500">Total</div>
+                    </div>
+                </div>
+                <div class="col-6 md:col-3">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-500">{{ getAttendanceStats().present }}</div>
+                        <div class="text-500">Present</div>
+                    </div>
+                </div>
+                <div class="col-6 md:col-3">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-500">{{ getAttendanceStats().absent }}</div>
+                        <div class="text-500">Absent</div>
+                    </div>
+                </div>
+                <div class="col-6 md:col-3">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-orange-500">{{ getAttendanceStats().pending }}</div>
+                        <div class="text-500">Pending</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance List -->
+    <div class="col-12" *ngIf="selectedFormation">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-4">
+                <h5>Participants ({{ attendanceRecords.length }})</h5>
+                <div class="flex gap-2">
+                    <p-button 
+                        label="Mark All Present" 
+                        icon="pi pi-check" 
+                        class="p-button-sm p-button-success"
+                        (click)="markAllPresent()">
+                    </p-button>
+                    <p-button 
+                        label="Mark All Absent" 
+                        icon="pi pi-times" 
+                        class="p-button-sm p-button-danger"
+                        (click)="markAllAbsent()">
+                    </p-button>
+                    <p-button 
+                        label="Reset" 
+                        icon="pi pi-refresh" 
+                        class="p-button-sm p-button-outlined"
+                        (click)="resetAttendance()">
+                    </p-button>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="flex gap-3 mb-4">
+                <span class="p-input-icon-left flex-1">
+                    <i class="pi pi-search"></i>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        [(ngModel)]="searchTerm"
+                        placeholder="Search participants..." 
+                        class="w-full" />
+                </span>
+                <p-dropdown 
+                    [(ngModel)]="attendanceFilter" 
+                    [options]="attendanceOptions" 
+                    optionLabel="label" 
+                    optionValue="value"
+                    placeholder="Filter by status"
+                    styleClass="w-12rem">
+                </p-dropdown>
+            </div>
+
+            <div *ngIf="loadingParticipants" class="text-center py-5">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <p class="text-500 mt-3">Loading participants...</p>
+            </div>
+
+            <div *ngIf="!loadingParticipants && attendanceRecords.length === 0" class="text-center py-5">
+                <i class="pi pi-users text-4xl text-500 mb-3"></i>
+                <p class="text-500">No participants found for this formation</p>
+            </div>
+
+            <div *ngIf="!loadingParticipants && filteredAttendanceRecords.length > 0" class="grid">
+                <div class="col-12 md:col-6 lg:col-4" *ngFor="let record of filteredAttendanceRecords">
+                    <div class="border-1 surface-border border-round p-4 mb-3">
+                        <div class="flex justify-content-between align-items-start mb-3">
+                            <div class="flex align-items-center">
+                                <div class="bg-primary-100 text-primary-900 border-circle w-3rem h-3rem flex align-items-center justify-content-center mr-3">
+                                    <i class="pi pi-user text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-900">
+                                        {{ record.participant.user?.first_name }} {{ record.participant.user?.last_name }}
+                                    </div>
+                                    <div class="text-500 text-sm">{{ record.participant.user?.email }}</div>
+                                    <div class="text-500 text-sm">
+                                        <i class="pi pi-sitemap mr-1"></i>
+                                        {{ record.participant.user?.team?.name }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-content-center gap-2">
+                            <p-button 
+                                label="Present" 
+                                icon="pi pi-check"
+                                [class]="record.attendance === 'present' ? 'p-button-success' : 'p-button-outlined p-button-success'"
+                                class="flex-1 p-button-sm"
+                                (click)="markAttendance(record, 'present')">
+                            </p-button>
+                            <p-button 
+                                label="Absent" 
+                                icon="pi pi-times"
+                                [class]="record.attendance === 'absent' ? 'p-button-danger' : 'p-button-outlined p-button-danger'"
+                                class="flex-1 p-button-sm"
+                                (click)="markAttendance(record, 'absent')">
+                            </p-button>
+                        </div>
+                        
+                        <div class="mt-3" *ngIf="record.attendance !== 'pending'">
+                            <p-tag 
+                                [value]="record.attendance === 'present' ? 'Present' : 'Absent'" 
+                                [severity]="record.attendance === 'present' ? 'success' : 'danger'"
+                                class="w-full justify-content-center">
+                            </p-tag>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-content-center mt-4" *ngIf="attendanceRecords.length > 0">
+                <p-button 
+                    label="Submit Attendance" 
+                    icon="pi pi-send"
+                    [loading]="submitting"
+                    class="p-button-lg"
+                    (click)="submitAttendance()">
+                </p-button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

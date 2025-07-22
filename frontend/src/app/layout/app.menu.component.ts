@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { LayoutService } from './service/app.layout.service';
 import { AuthService } from '../services/auth.service';
+import { KeycloakAuthService } from '../services/keycloak-auth.service';
 
 
 @Component({
@@ -15,11 +16,45 @@ export class AppMenuComponent implements OnInit {
     constructor(
         public layoutService: LayoutService,
         private authService: AuthService,
+        private keycloakAuthService: KeycloakAuthService,
         private router: Router
     ) { }
 
     ngOnInit() {
-        this.model = [
+        // Try Keycloak user first, then fallback to regular auth
+        const keycloakUser = this.keycloakAuthService.getCurrentUserValue();
+        const authUser = this.authService.getCurrentUserValue();
+
+        if (keycloakUser) {
+            // Use Keycloak roles (array)
+            if (keycloakUser.roles.includes('admin')) {
+                this.model = this.getAdminMenu();
+            } else if (keycloakUser.roles.includes('trainer') || keycloakUser.roles.includes('formateur')) {
+                this.model = this.getTrainerMenu();
+            } else if (keycloakUser.roles.includes('employee') || keycloakUser.roles.includes('employe')) {
+                this.model = this.getEmployeeMenu();
+            } else {
+                this.model = this.getDefaultMenu();
+            }
+        } else if (authUser) {
+            // Use regular auth role (string)
+            const userRole = authUser.role;
+            if (userRole === 'admin') {
+                this.model = this.getAdminMenu();
+            } else if (userRole === 'trainer' || userRole === 'formateur') {
+                this.model = this.getTrainerMenu();
+            } else if (userRole === 'employee' || userRole === 'employe') {
+                this.model = this.getEmployeeMenu();
+            } else {
+                this.model = this.getDefaultMenu();
+            }
+        } else {
+            this.model = this.getDefaultMenu();
+        }
+    }
+
+    private getAdminMenu(): any[] {
+        return [
             // ===== ADMIN MENU =====
             {
                 label: 'HOME',
@@ -71,35 +106,101 @@ export class AppMenuComponent implements OnInit {
                     { label: 'Logout', icon: 'pi pi-fw pi-sign-out', command: () => this.logout() }
                 ]
             }
+        ];
+    }
 
-            /* ===== PRESERVED CODE FOR FUTURE TRAINER/EMPLOYEE MODULES =====
-
-            // FOR TRAINER MODULE:
+    private getTrainerMenu(): any[] {
+        return [
+            // ===== TRAINER MENU =====
             {
-                label: 'TRAINER TOOLS',
+                label: 'HOME',
                 items: [
-                    { label: 'My Trainings', icon: 'pi pi-fw pi-briefcase', routerLink: ['/trainer/trainings'] },
-                    { label: 'Attendance', icon: 'pi pi-fw pi-check-square', routerLink: ['/trainer/attendance'] },
-                    { label: 'Materials', icon: 'pi pi-fw pi-file', routerLink: ['/trainer/materials'] }
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/trainer'] }
                 ]
             },
+            {
+                label: 'MY FORMATIONS',
+                items: [
+                    { label: 'My Formations', icon: 'pi pi-fw pi-briefcase', routerLink: ['/trainer/formations'] },
+                    { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/trainer/formations/calendar'] }
+                ]
+            },
+            {
+                label: 'ATTENDANCE',
+                items: [
+                    { label: 'Take Attendance', icon: 'pi pi-fw pi-check-square', routerLink: ['/trainer/attendance'] },
+                    { label: 'Attendance History', icon: 'pi pi-fw pi-history', routerLink: ['/trainer/attendance/history'] }
+                ]
+            },
+            {
+                label: 'DOCUMENTS',
+                items: [
+                    { label: 'My Documents', icon: 'pi pi-fw pi-file', routerLink: ['/trainer/documents'] },
+                    { label: 'Upload Materials', icon: 'pi pi-fw pi-upload', routerLink: ['/trainer/documents/upload'] }
+                ]
+            },
+            {
+                label: 'REPORTS',
+                items: [
+                    { label: 'Formation Reports', icon: 'pi pi-fw pi-file-pdf', routerLink: ['/trainer/reports'] },
+                    { label: 'Create Report', icon: 'pi pi-fw pi-plus', routerLink: ['/trainer/reports/create'] }
+                ]
+            },
+            {
+                label: 'ACCOUNT',
+                items: [
+                    { label: 'Profile', icon: 'pi pi-fw pi-id-card', routerLink: ['/trainer/profile'] },
+                    { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/trainer/profile/settings'] },
+                    { label: 'Help', icon: 'pi pi-fw pi-question', routerLink: ['/pages/help'] },
+                    { label: 'Logout', icon: 'pi pi-fw pi-sign-out', command: () => this.logout() }
+                ]
+            }
+        ];
+    }
 
-            // FOR EMPLOYEE MODULE:
+    private getEmployeeMenu(): any[] {
+        return [
+            // ===== EMPLOYEE MENU =====
+            {
+                label: 'HOME',
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/employee'] }
+                ]
+            },
             {
                 label: 'MY LEARNING',
                 items: [
-                    { label: 'My Trainings', icon: 'pi pi-fw pi-calendar', routerLink: ['/employee/trainings'] },
-                    { label: 'Progress', icon: 'pi pi-fw pi-chart-line', routerLink: ['/employee/progress'] },
-                    { label: 'Certificates', icon: 'pi pi-fw pi-award', routerLink: ['/employee/certificates'] }
+                    { label: 'My Formations', icon: 'pi pi-fw pi-calendar', routerLink: ['/employee/formations'] },
+                    { label: 'Formation History', icon: 'pi pi-fw pi-history', routerLink: ['/employee/history'] }
                 ]
             },
+            {
+                label: 'RESOURCES',
+                items: [
+                    { label: 'Documents', icon: 'pi pi-fw pi-file', routerLink: ['/employee/documents'] }
+                ]
+            },
+            {
+                label: 'ACCOUNT',
+                items: [
+                    { label: 'Profile', icon: 'pi pi-fw pi-id-card', routerLink: ['/employee/profile'] },
+                    { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/employee/profile/settings'] },
+                    { label: 'Help', icon: 'pi pi-fw pi-question', routerLink: ['/pages/help'] },
+                    { label: 'Logout', icon: 'pi pi-fw pi-sign-out', command: () => this.logout() }
+                ]
+            }
+        ];
+    }
 
-            // UTILITY COMPONENTS (can be reused):
-            { label: 'Input', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] },
-            { label: 'List', icon: 'pi pi-fw pi-list', routerLink: ['/uikit/list'] },
-            { label: 'Tree', icon: 'pi pi-fw pi-share-alt', routerLink: ['/uikit/tree'] }
-
-            ===== END PRESERVED CODE ===== */
+    private getDefaultMenu(): any[] {
+        return [
+            {
+                label: 'ACCOUNT',
+                items: [
+                    { label: 'Login', icon: 'pi pi-fw pi-sign-in', routerLink: ['/auth/login'] },
+                    { label: 'Help', icon: 'pi pi-fw pi-question', routerLink: ['/pages/help'] }
+                ]
+            }
         ];
     }
 
@@ -109,17 +210,33 @@ export class AppMenuComponent implements OnInit {
         // Clear session immediately for instant feedback
         this.clearLocalSession();
 
-        // Try to logout from server (but don't wait for it)
-        this.authService.logout().subscribe({
-            next: () => {
-                console.log('✅ Server logout successful');
-                this.redirectToLogin();
-            },
-            error: (error) => {
-                console.error('❌ Server logout failed, but continuing with local logout:', error);
-                this.redirectToLogin();
-            }
-        });
+        // Try Keycloak logout first, then fallback to regular auth
+        const keycloakUser = this.keycloakAuthService.getCurrentUserValue();
+
+        if (keycloakUser) {
+            this.keycloakAuthService.logout().subscribe({
+                next: () => {
+                    console.log('✅ Keycloak logout successful');
+                    this.redirectToLogin();
+                },
+                error: (error) => {
+                    console.error('❌ Keycloak logout failed, but continuing with local logout:', error);
+                    this.redirectToLogin();
+                }
+            });
+        } else {
+            // Fallback to regular auth logout
+            this.authService.logout().subscribe({
+                next: () => {
+                    console.log('✅ Server logout successful');
+                    this.redirectToLogin();
+                },
+                error: (error) => {
+                    console.error('❌ Server logout failed, but continuing with local logout:', error);
+                    this.redirectToLogin();
+                }
+            });
+        }
     }
 
     private clearLocalSession() {

@@ -20,6 +20,9 @@ return new class extends Migration {
             $table->enum('role', ['admin', 'formateur', 'employe'])->default('employe');
             $table->unsignedBigInteger('team_id')->nullable();
             $table->string('phone')->nullable();
+            $table->string('specialite')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
 

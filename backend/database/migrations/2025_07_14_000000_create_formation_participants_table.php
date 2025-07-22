@@ -18,9 +18,10 @@ return new class extends Migration
             $table->foreignId('formation_id')->constrained('formations')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['registered', 'confirmed', 'cancelled'])->default('registered');
+            $table->enum('attendance', ['pending', 'present', 'absent'])->default('pending');
             $table->text('notes')->nullable(); // Notes admin ou formateur
             $table->timestamps();
-            
+
             // Éviter les doublons
             $table->unique(['formation_id', 'user_id']);
         });

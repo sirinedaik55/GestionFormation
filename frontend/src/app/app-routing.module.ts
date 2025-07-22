@@ -26,19 +26,18 @@ import { AppLayoutComponent } from "./layout/app.layout.component";
                         canActivate: [RoleGuard],
                         data: { roles: ['admin'] }
                     },
-                    // TODO: Create trainer and employee modules
-                    // {
-                    //     path: 'trainer',
-                    //     loadChildren: () => import('./demo/components/trainer/trainer.module').then(m => m.TrainerModule),
-                    //     canActivate: [RoleGuard],
-                    //     data: { roles: ['trainer'] }
-                    // },
-                    // {
-                    //     path: 'employee',
-                    //     loadChildren: () => import('./demo/components/employee/employee.module').then(m => m.EmployeeModule),
-                    //     canActivate: [RoleGuard],
-                    //     data: { roles: ['employee'] }
-                    // }
+                    {
+                        path: 'trainer',
+                        loadChildren: () => import('./demo/components/Trainers/trainer.module').then(m => m.TrainerModule),
+                        canActivate: [RoleGuard],
+                        data: { roles: ['formateur'] }
+                    },
+                    {
+                        path: 'employee',
+                        loadChildren: () => import('./demo/components/Employee/employee.module').then(m => m.EmployeeModule),
+                        canActivate: [RoleGuard],
+                        data: { roles: ['employe'] }
+                    }
                 ],
             },
             {

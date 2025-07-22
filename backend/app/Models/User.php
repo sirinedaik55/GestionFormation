@@ -20,16 +20,12 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
-        'name',
         'email',
         'password',
         'role',
         'team_id',
         'phone',
         'specialite',
-        'date_debut',
-        'date_fin',
-        'room',
         'status',
         'last_login_at',
         'email_verified_at',
@@ -52,16 +48,12 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    // Automatically set name when first_name or last_name changes
-    protected static function boot()
+    /**
+     * Get the user's full name
+     */
+    public function getFullNameAttribute()
     {
-        parent::boot();
-
-        static::saving(function ($user) {
-            if ($user->first_name && $user->last_name) {
-                $user->name = $user->first_name . ' ' . $user->last_name;
-            }
-        });
+        return $this->first_name . ' ' . $this->last_name;
     }
 
     /**

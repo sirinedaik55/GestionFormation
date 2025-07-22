@@ -1,0 +1,119 @@
+<div class="grid">
+    <!-- Header -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-900 font-semibold mb-2">My Formations</h2>
+                    <p class="text-600 m-0">View and manage your assigned formations</p>
+                </div>
+                <div class="flex align-items-center">
+                    <label class="text-500 font-medium mr-2">Filter:</label>
+                    <p-dropdown 
+                        [(ngModel)]="selectedStatus" 
+                        [options]="statusOptions" 
+                        optionLabel="label" 
+                        optionValue="value"
+                        (onChange)="onStatusChange()"
+                        class="w-12rem">
+                    </p-dropdown>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="col-12" *ngIf="loading">
+        <div class="card">
+            <div class="flex justify-content-center align-items-center py-5">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <span class="ml-3 text-500">Loading formations...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formations List -->
+    <div class="col-12" *ngIf="!loading">
+        <div class="card">
+            <div class="grid" *ngIf="formations.length > 0">
+                <div class="col-12 lg:col-6 xl:col-4" *ngFor="let formation of formations">
+                    <div class="card border-1 surface-border cursor-pointer hover:surface-hover transition-colors transition-duration-150"
+                         (click)="viewDetails(formation)">
+                        
+                        <!-- Formation Header -->
+                        <div class="flex justify-content-between align-items-start mb-3">
+                            <div class="flex-1">
+                                <h6 class="text-900 font-semibold mb-1">{{ formation.name }}</h6>
+                                <p class="text-500 text-sm m-0 line-height-3">{{ formation.description }}</p>
+                            </div>
+                            <div class="flex flex-column align-items-end ml-3">
+                                <p-tag 
+                                    [value]="getStatusLabel(formation.status)" 
+                                    [severity]="getStatusSeverity(formation.status)"
+                                    class="mb-2">
+                                </p-tag>
+                                <p-tag 
+                                    [value]="getAttendanceLabel(formation.attendance)" 
+                                    [severity]="getAttendanceSeverity(formation.attendance)">
+                                </p-tag>
+                            </div>
+                        </div>
+
+                        <!-- Formation Details -->
+                        <div class="text-sm">
+                            <div class="flex align-items-center mb-2">
+                                <i class="pi pi-calendar text-500 mr-2"></i>
+                                <span>{{ formatDate(formation.date) }}</span>
+                            </div>
+                            
+                            <div class="flex align-items-center mb-2">
+                                <i class="pi pi-clock text-500 mr-2"></i>
+                                <span>{{ formation.duree }} hours</span>
+                            </div>
+                            
+                            <div class="flex align-items-center mb-2" *ngIf="formation.room">
+                                <i class="pi pi-map-marker text-500 mr-2"></i>
+                                <span>{{ formation.room }}</span>
+                            </div>
+                            
+                            <div class="flex align-items-center mb-2" *ngIf="formation.trainer">
+                                <i class="pi pi-user text-500 mr-2"></i>
+                                <span>{{ formation.trainer.name }}</span>
+                            </div>
+                            
+                            <div class="flex align-items-center" *ngIf="formation.team">
+                                <i class="pi pi-users text-500 mr-2"></i>
+                                <span>{{ formation.team.name }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="mt-3 pt-3 border-top-1 surface-border">
+                            <p-button 
+                                label="View Details" 
+                                icon="pi pi-arrow-right" 
+                                class="p-button-text p-button-sm w-full"
+                                (click)="viewDetails(formation); $event.stopPropagation()">
+                            </p-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="text-center py-5" *ngIf="formations.length === 0">
+                <div class="mb-3">
+                    <i class="pi pi-calendar text-6xl text-400"></i>
+                </div>
+                <h5 class="text-500 mb-3">No formations found</h5>
+                <p class="text-500 m-0">
+                    <span *ngIf="selectedStatus === 'all'">You don't have any formations assigned yet.</span>
+                    <span *ngIf="selectedStatus === 'upcoming'">You don't have any upcoming formations.</span>
+                    <span *ngIf="selectedStatus === 'completed'">You don't have any completed formations.</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

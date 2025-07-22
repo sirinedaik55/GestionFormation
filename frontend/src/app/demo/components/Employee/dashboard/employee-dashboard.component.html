@@ -1,0 +1,262 @@
+<div class="grid">
+    <!-- Welcome Header -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-900 font-semibold mb-2" *ngIf="stats">
+                        Welcome back, {{ stats.employee_info.name }}!
+                    </h2>
+                    <p class="text-600 m-0" *ngIf="stats">
+                        {{ stats.employee_info.team }} - {{ stats.employee_info.team_speciality }}
+                    </p>
+                </div>
+                <div class="flex align-items-center" *ngIf="stats">
+                    <div class="bg-primary-100 text-primary-900 border-circle w-4rem h-4rem flex align-items-center justify-content-center mr-3">
+                        <i class="pi pi-user text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-500 text-sm">Attendance Rate</div>
+                        <div class="text-900 font-semibold text-xl">{{ stats.formation_stats.attendance_rate }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="col-12" *ngIf="loading">
+        <div class="card">
+            <div class="flex justify-content-center align-items-center py-5">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <span class="ml-3 text-500">Loading dashboard...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="col-12" *ngIf="!loading && stats">
+        <div class="grid">
+            <!-- Total Formations -->
+            <div class="col-12 lg:col-6 xl:col-3">
+                <div class="card mb-0">
+                    <div class="flex justify-content-between mb-3">
+                        <div>
+                            <span class="block text-500 font-medium mb-3">Total Formations</span>
+                            <div class="text-900 font-medium text-xl">{{ stats.formation_stats.total_formations }}</div>
+                        </div>
+                        <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
+                            <i class="pi pi-book text-blue-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <span class="text-green-500 font-medium">{{ stats.formation_stats.completed_formations }} completed</span>
+                    <span class="text-500"> / {{ stats.formation_stats.upcoming_formations }} upcoming</span>
+                </div>
+            </div>
+
+            <!-- Attendance Rate -->
+            <div class="col-12 lg:col-6 xl:col-3">
+                <div class="card mb-0">
+                    <div class="flex justify-content-between mb-3">
+                        <div>
+                            <span class="block text-500 font-medium mb-3">Attendance Rate</span>
+                            <div class="text-900 font-medium text-xl">{{ stats.formation_stats.attendance_rate }}%</div>
+                        </div>
+                        <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:2.5rem;height:2.5rem">
+                            <i class="pi pi-check-circle text-green-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <span class="text-green-500 font-medium">{{ stats.formation_stats.present_count }} present</span>
+                    <span class="text-500"> / {{ stats.formation_stats.absent_count }} absent</span>
+                </div>
+            </div>
+
+            <!-- Upcoming Formations -->
+            <div class="col-12 lg:col-6 xl:col-3">
+                <div class="card mb-0">
+                    <div class="flex justify-content-between mb-3">
+                        <div>
+                            <span class="block text-500 font-medium mb-3">Upcoming</span>
+                            <div class="text-900 font-medium text-xl">{{ stats.formation_stats.upcoming_formations }}</div>
+                        </div>
+                        <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2.5rem;height:2.5rem">
+                            <i class="pi pi-calendar text-orange-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <span class="text-500">formations scheduled</span>
+                </div>
+            </div>
+
+            <!-- Team Info -->
+            <div class="col-12 lg:col-6 xl:col-3">
+                <div class="card mb-0">
+                    <div class="flex justify-content-between mb-3">
+                        <div>
+                            <span class="block text-500 font-medium mb-3">My Team</span>
+                            <div class="text-900 font-medium text-xl">{{ stats.employee_info.team }}</div>
+                        </div>
+                        <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:2.5rem;height:2.5rem">
+                            <i class="pi pi-users text-purple-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <span class="text-500">{{ stats.employee_info.team_speciality }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-12 lg:col-8" *ngIf="!loading && stats">
+        <div class="card">
+            <h5>Quick Actions</h5>
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="surface-100 border-round p-3 text-center cursor-pointer hover:surface-200 transition-colors transition-duration-150"
+                         (click)="navigateToFormations()">
+                        <i class="pi pi-book text-3xl text-primary mb-3"></i>
+                        <div class="text-900 font-medium mb-1">My Formations</div>
+                        <div class="text-500 text-sm">View assigned formations</div>
+                    </div>
+                </div>
+                
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="surface-100 border-round p-3 text-center cursor-pointer hover:surface-200 transition-colors transition-duration-150"
+                         (click)="navigateToHistory()">
+                        <i class="pi pi-history text-3xl text-green-500 mb-3"></i>
+                        <div class="text-900 font-medium mb-1">History</div>
+                        <div class="text-500 text-sm">View formation history</div>
+                    </div>
+                </div>
+                
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="surface-100 border-round p-3 text-center cursor-pointer hover:surface-200 transition-colors transition-duration-150"
+                         (click)="navigateToDocuments()">
+                        <i class="pi pi-file text-3xl text-orange-500 mb-3"></i>
+                        <div class="text-900 font-medium mb-1">Documents</div>
+                        <div class="text-500 text-sm">Access formation materials</div>
+                    </div>
+                </div>
+                
+                <div class="col-12 md:col-6 lg:col-3">
+                    <div class="surface-100 border-round p-3 text-center cursor-pointer hover:surface-200 transition-colors transition-duration-150"
+                         (click)="navigateToProfile()">
+                        <i class="pi pi-user text-3xl text-purple-500 mb-3"></i>
+                        <div class="text-900 font-medium mb-1">Profile</div>
+                        <div class="text-500 text-sm">Manage your profile</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="col-12 lg:col-4" *ngIf="!loading && stats">
+        <div class="card">
+            <h5>Attendance Overview</h5>
+            <p-chart type="doughnut" [data]="attendanceChartData" [options]="attendanceChartOptions" 
+                     styleClass="w-full" [style]="{'height': '300px'}"></p-chart>
+        </div>
+    </div>
+
+    <!-- Upcoming Formations -->
+    <div class="col-12" *ngIf="!loading && stats && stats.upcoming_formations.length > 0">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-4">
+                <h5>Upcoming Formations</h5>
+                <p-button 
+                    label="View All" 
+                    icon="pi pi-arrow-right" 
+                    class="p-button-text"
+                    (click)="navigateToFormations()">
+                </p-button>
+            </div>
+            
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-4" *ngFor="let formation of stats.upcoming_formations">
+                    <div class="card border-1 surface-border cursor-pointer hover:surface-hover transition-colors transition-duration-150"
+                         (click)="viewFormationDetails(formation)">
+                        <div class="flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="text-900 font-semibold mb-1">{{ formation.name }}</h6>
+                                <p class="text-500 text-sm m-0">{{ formation.trainer?.name }}</p>
+                            </div>
+                            <p-tag 
+                                [value]="getStatusLabel(formation.status)" 
+                                [severity]="getStatusSeverity(formation.status)">
+                            </p-tag>
+                        </div>
+                        
+                        <div class="text-sm">
+                            <div class="flex align-items-center mb-2">
+                                <i class="pi pi-calendar text-500 mr-2"></i>
+                                <span>{{ formatDate(formation.date) }}</span>
+                            </div>
+                            <div class="flex align-items-center mb-2">
+                                <i class="pi pi-clock text-500 mr-2"></i>
+                                <span>{{ formation.duree }} hours</span>
+                            </div>
+                            <div class="flex align-items-center" *ngIf="formation.room">
+                                <i class="pi pi-map-marker text-500 mr-2"></i>
+                                <span>{{ formation.room }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Formations -->
+    <div class="col-12" *ngIf="!loading && stats && stats.recent_formations.length > 0">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-4">
+                <h5>Recent Formations</h5>
+                <p-button 
+                    label="View History" 
+                    icon="pi pi-arrow-right" 
+                    class="p-button-text"
+                    (click)="navigateToHistory()">
+                </p-button>
+            </div>
+            
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-4" *ngFor="let formation of stats.recent_formations">
+                    <div class="card border-1 surface-border">
+                        <div class="flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="text-900 font-semibold mb-1">{{ formation.name }}</h6>
+                                <p class="text-500 text-sm m-0">{{ formation.trainer?.name }}</p>
+                            </div>
+                            <p-tag 
+                                [value]="getAttendanceLabel(formation.attendance)" 
+                                [severity]="getAttendanceSeverity(formation.attendance)">
+                            </p-tag>
+                        </div>
+                        
+                        <div class="text-sm">
+                            <div class="flex align-items-center mb-2">
+                                <i class="pi pi-calendar text-500 mr-2"></i>
+                                <span>{{ formatDate(formation.date) }}</span>
+                            </div>
+                            <div class="flex align-items-center">
+                                <i class="pi pi-clock text-500 mr-2"></i>
+                                <span>{{ formation.duree }} hours</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Activity Chart -->
+    <div class="col-12" *ngIf="!loading && stats">
+        <div class="card">
+            <h5>Monthly Activity</h5>
+            <p-chart type="line" [data]="monthlyChartData" [options]="monthlyChartOptions" 
+                     styleClass="w-full" [style]="{'height': '400px'}"></p-chart>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

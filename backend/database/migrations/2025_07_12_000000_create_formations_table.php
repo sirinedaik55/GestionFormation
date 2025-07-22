@@ -11,13 +11,15 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->date('date');
+            $table->datetime('date');
             $table->integer('duree');
-            $table->unsignedBigInteger('equipe_id');
+            $table->string('room')->nullable();
+            $table->enum('status', ['scheduled', 'ongoing', 'completed', 'cancelled'])->default('scheduled');
+            $table->unsignedBigInteger('team_id');
             $table->unsignedBigInteger('formateur_id');
             $table->timestamps();
 
-            $table->foreign('equipe_id')->references('id')->on('teams')->onDelete('cascade');
+            $table->foreign('team_id')->references('id')->on('teams')->onDelete('cascade');
             $table->foreign('formateur_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

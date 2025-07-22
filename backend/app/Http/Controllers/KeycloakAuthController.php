@@ -276,12 +276,12 @@ class KeycloakAuthController extends Controller
                     'id' => '2',
                     'username' => 'trainer@formation.com',
                     'email' => 'trainer@formation.com',
-                    'name' => 'Trainer User',
-                    'first_name' => 'Trainer',
-                    'last_name' => 'User',
-                    'roles' => ['trainer'],
+                    'name' => 'Syrine Daik',
+                    'first_name' => 'Syrine',
+                    'last_name' => 'Daik',
+                    'roles' => ['formateur', 'trainer'],
                     'team' => 'Training',
-                    'specialite' => 'IT Training'
+                    'specialite' => 'Angular & TypeScript'
                 ]
             ],
             'employee@formation.com' => [

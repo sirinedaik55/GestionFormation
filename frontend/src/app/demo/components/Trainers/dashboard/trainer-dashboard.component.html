@@ -1,0 +1,266 @@
+<div class="grid">
+    <!-- Page Header -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-900 font-semibold mb-2">Trainer Dashboard</h2>
+                    <p class="text-600 m-0">Welcome back! Here's an overview of your training activities.</p>
+                </div>
+                <div>
+                    <p-button 
+                        icon="pi pi-refresh" 
+                        label="Refresh" 
+                        class="p-button-outlined"
+                        (click)="refreshDashboard()">
+                    </p-button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Total Formations</span>
+                    <div class="text-900 font-medium text-xl">
+                        <span *ngIf="!loadingStats">{{ stats.totalFormations }}</span>
+                        <p-skeleton *ngIf="loadingStats" width="3rem" height="1.5rem"></p-skeleton>
+                    </div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
+                    <i class="pi pi-briefcase text-blue-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">{{ stats.thisMonthFormations }} </span>
+            <span class="text-500">this month</span>
+        </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Upcoming</span>
+                    <div class="text-900 font-medium text-xl">
+                        <span *ngIf="!loadingStats">{{ stats.upcomingFormations }}</span>
+                        <p-skeleton *ngIf="loadingStats" width="3rem" height="1.5rem"></p-skeleton>
+                    </div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2.5rem;height:2.5rem">
+                    <i class="pi pi-clock text-orange-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">{{ stats.completedFormations }} </span>
+            <span class="text-500">completed</span>
+        </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Total Participants</span>
+                    <div class="text-900 font-medium text-xl">
+                        <span *ngIf="!loadingStats">{{ stats.totalParticipants }}</span>
+                        <p-skeleton *ngIf="loadingStats" width="3rem" height="1.5rem"></p-skeleton>
+                    </div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" style="width:2.5rem;height:2.5rem">
+                    <i class="pi pi-users text-cyan-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">Active learners</span>
+        </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Avg. Attendance</span>
+                    <div class="text-900 font-medium text-xl">
+                        <span *ngIf="!loadingStats">{{ stats.averageAttendanceRate }}%</span>
+                        <p-skeleton *ngIf="loadingStats" width="3rem" height="1.5rem"></p-skeleton>
+                    </div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:2.5rem;height:2.5rem">
+                    <i class="pi pi-chart-line text-purple-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">Overall rate</span>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-12">
+        <div class="card">
+            <h5>Quick Actions</h5>
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-3">
+                    <p-button 
+                        label="My Formations" 
+                        icon="pi pi-briefcase" 
+                        class="w-full p-button-outlined"
+                        (click)="navigateToFormations()">
+                    </p-button>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <p-button 
+                        label="Take Attendance" 
+                        icon="pi pi-check-square" 
+                        class="w-full p-button-outlined"
+                        (click)="navigateToAttendance()">
+                    </p-button>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <p-button 
+                        label="Upload Documents" 
+                        icon="pi pi-upload" 
+                        class="w-full p-button-outlined"
+                        (click)="navigateToDocuments()">
+                    </p-button>
+                </div>
+                <div class="col-12 md:col-6 lg:col-3">
+                    <p-button 
+                        label="Create Report" 
+                        icon="pi pi-file-pdf" 
+                        class="w-full p-button-outlined"
+                        (click)="navigateToReports()">
+                    </p-button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Formations -->
+    <div class="col-12 xl:col-8">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-5">
+                <h5>Upcoming Formations</h5>
+                <p-button 
+                    icon="pi pi-plus" 
+                    label="View All" 
+                    class="p-button-text"
+                    (click)="navigateToFormations()">
+                </p-button>
+            </div>
+            
+            <div *ngIf="loadingFormations" class="text-center">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+            </div>
+
+            <div *ngIf="!loadingFormations && upcomingFormations.length === 0" class="text-center text-500 py-5">
+                <i class="pi pi-calendar text-4xl mb-3"></i>
+                <p>No upcoming formations scheduled</p>
+            </div>
+
+            <div *ngIf="!loadingFormations && upcomingFormations.length > 0">
+                <div class="border-round border-1 surface-border p-4 surface-card mb-3" 
+                     *ngFor="let formation of upcomingFormations.slice(0, 5)">
+                    <div class="flex justify-content-between align-items-start">
+                        <div class="flex-1">
+                            <div class="font-medium text-900 mb-2">{{ formation.name }}</div>
+                            <div class="text-500 mb-2">
+                                <i class="pi pi-calendar mr-2"></i>
+                                {{ formatDate(formation.date) }}
+                            </div>
+                            <div class="text-500 mb-2">
+                                <i class="pi pi-clock mr-2"></i>
+                                {{ formation.duree }}h
+                                <span class="ml-3">
+                                    <i class="pi pi-users mr-2"></i>
+                                    {{ formation.participantCount || 0 }} participants
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex align-items-center">
+                            <p-tag 
+                                [value]="getFormationStatusLabel(formation.status)" 
+                                [severity]="getFormationStatusSeverity(formation.status)"
+                                class="mr-2">
+                            </p-tag>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="col-12 xl:col-4">
+        <div class="card">
+            <h5>Recent Attendance Rates</h5>
+            <p-chart 
+                type="line" 
+                [data]="attendanceChartData" 
+                [options]="attendanceChartOptions"
+                height="300px">
+            </p-chart>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-12">
+        <div class="card">
+            <h5>Recent Formations</h5>
+            
+            <div *ngIf="loadingFormations" class="text-center">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+            </div>
+
+            <div *ngIf="!loadingFormations && recentFormations.length === 0" class="text-center text-500 py-5">
+                <i class="pi pi-history text-4xl mb-3"></i>
+                <p>No recent formations found</p>
+            </div>
+
+            <p-table 
+                *ngIf="!loadingFormations && recentFormations.length > 0"
+                [value]="recentFormations" 
+                [paginator]="false"
+                [rows]="5"
+                responsiveLayout="scroll">
+                
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Formation</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Participants</th>
+                        <th>Attendance Rate</th>
+                        <th>Status</th>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-formation>
+                    <tr>
+                        <td>{{ formation.name }}</td>
+                        <td>{{ formatDate(formation.date) }}</td>
+                        <td>{{ formation.duree }}h</td>
+                        <td>{{ formation.participantCount || 0 }}</td>
+                        <td>
+                            <div class="flex align-items-center">
+                                <span class="mr-2">{{ formation.attendanceRate || 0 }}%</span>
+                                <p-progressBar 
+                                    [value]="formation.attendanceRate || 0" 
+                                    [showValue]="false"
+                                    styleClass="w-6rem">
+                                </p-progressBar>
+                            </div>
+                        </td>
+                        <td>
+                            <p-tag 
+                                [value]="getFormationStatusLabel(formation.status)" 
+                                [severity]="getFormationStatusSeverity(formation.status)">
+                            </p-tag>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>

@@ -54,10 +54,10 @@ export class RoleGuard implements CanActivate, CanActivateChild {
     private redirectToAuthorizedPage(userRoles: string[]): void {
         if (userRoles.includes('admin')) {
             this.router.navigate(['/']);
-        } else if (userRoles.includes('trainer')) {
-            this.router.navigate(['/trainer/dashboard']);
-        } else if (userRoles.includes('employee')) {
-            this.router.navigate(['/employee/dashboard']);
+        } else if (userRoles.includes('trainer') || userRoles.includes('formateur')) {
+            this.router.navigate(['/trainer']);
+        } else if (userRoles.includes('employee') || userRoles.includes('employe')) {
+            this.router.navigate(['/employee']);
         } else {
             this.router.navigate(['/unauthorized']);
         }

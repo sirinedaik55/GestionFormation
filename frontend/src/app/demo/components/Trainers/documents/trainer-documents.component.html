@@ -1,0 +1,162 @@
+<div class="grid">
+    <!-- Header -->
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-900 font-semibold mb-2">My Documents</h2>
+                    <p class="text-600 m-0">Manage your training materials and resources</p>
+                </div>
+                <p-button 
+                    icon="pi pi-upload" 
+                    label="Upload Documents" 
+                    (click)="showUploadDialog()">
+                </p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documents List -->
+    <div class="col-12">
+        <div class="card">
+            <div *ngIf="loading" class="text-center py-5">
+                <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+                <p class="text-500 mt-3">Loading documents...</p>
+            </div>
+
+            <div *ngIf="!loading && documents.length === 0" class="text-center py-5">
+                <i class="pi pi-file text-4xl text-500 mb-3"></i>
+                <p class="text-500">No documents uploaded yet</p>
+                <p-button 
+                    label="Upload Your First Document" 
+                    class="p-button-outlined"
+                    (click)="showUploadDialog()">
+                </p-button>
+            </div>
+
+            <p-table 
+                *ngIf="!loading && documents.length > 0"
+                [value]="documents" 
+                [paginator]="true"
+                [rows]="10"
+                responsiveLayout="scroll">
+                
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Document</th>
+                        <th>Formation</th>
+                        <th>Type</th>
+                        <th>Size</th>
+                        <th>Upload Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-doc>
+                    <tr>
+                        <td>
+                            <div class="flex align-items-center">
+                                <i [class]="getFileIcon(doc.type)" class="text-2xl mr-3 text-primary"></i>
+                                <div>
+                                    <div class="font-medium text-900">{{ doc.name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ doc.formation }}</td>
+                        <td>
+                            <p-tag [value]="doc.type" severity="info"></p-tag>
+                        </td>
+                        <td>{{ doc.size }}</td>
+                        <td>{{ doc.uploadDate | date:'dd/MM/yyyy' }}</td>
+                        <td>
+                            <p-tag 
+                                [value]="doc.status" 
+                                [severity]="doc.status === 'active' ? 'success' : 'secondary'">
+                            </p-tag>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <p-button 
+                                    icon="pi pi-download" 
+                                    class="p-button-rounded p-button-text p-button-sm"
+                                    pTooltip="Download"
+                                    (click)="downloadDocument(doc)">
+                                </p-button>
+                                <p-button 
+                                    icon="pi pi-trash" 
+                                    class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                                    pTooltip="Delete"
+                                    (click)="deleteDocument(doc)">
+                                </p-button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Dialog -->
+<p-dialog 
+    header="Upload Documents" 
+    [(visible)]="uploadDialog" 
+    [modal]="true" 
+    [style]="{width: '50vw'}"
+    [closable]="true">
+    
+    <div class="grid">
+        <div class="col-12">
+            <label class="block text-900 font-medium mb-2">Formation</label>
+            <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="uploadFormation" 
+                placeholder="Enter formation name"
+                class="w-full" />
+        </div>
+        
+        <div class="col-12">
+            <label class="block text-900 font-medium mb-2">Description (Optional)</label>
+            <textarea 
+                pInputTextarea 
+                [(ngModel)]="uploadDescription" 
+                rows="3" 
+                placeholder="Enter document description"
+                class="w-full">
+            </textarea>
+        </div>
+        
+        <div class="col-12">
+            <label class="block text-900 font-medium mb-2">Files</label>
+            <p-fileUpload 
+                mode="advanced" 
+                [multiple]="true"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar"
+                [maxFileSize]="10000000"
+                (onSelect)="onFileSelect($event)"
+                [auto]="false"
+                chooseLabel="Choose Files"
+                uploadLabel="Upload"
+                cancelLabel="Clear">
+            </p-fileUpload>
+        </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="Cancel" 
+            icon="pi pi-times" 
+            class="p-button-text"
+            (click)="uploadDialog = false">
+        </p-button>
+        <p-button 
+            label="Upload" 
+            icon="pi pi-upload" 
+            (click)="uploadDocuments()">
+        </p-button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

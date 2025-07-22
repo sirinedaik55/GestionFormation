@@ -116,4 +116,48 @@ Route::prefix('settings')->group(function () {
     // Affecter un employé à une équipe
     Route::put('users/{user}/team', [App\Http\Controllers\UserController::class, 'updateTeam']);
 
+    // Routes spécifiques aux formateurs
+    Route::prefix('trainer')->middleware('keycloak:formateur')->group(function () {
+        Route::get('stats', [App\Http\Controllers\TrainerController::class, 'getStats']);
+        Route::get('formations', [App\Http\Controllers\TrainerController::class, 'getMyFormations']);
+        Route::get('formations/upcoming', [App\Http\Controllers\TrainerController::class, 'getUpcomingFormations']);
+        Route::get('formations/completed', [App\Http\Controllers\TrainerController::class, 'getCompletedFormations']);
+        Route::get('formations/{id}', [App\Http\Controllers\TrainerController::class, 'getFormationDetails']);
+        Route::put('formations/{id}', [App\Http\Controllers\TrainerController::class, 'updateFormationDetails']);
+
+        // Gestion des participants et présences
+        Route::get('formations/{id}/participants', [App\Http\Controllers\TrainerController::class, 'getFormationParticipants']);
+        Route::put('formations/{formationId}/participants/{participantId}/attendance', [App\Http\Controllers\TrainerController::class, 'updateParticipantAttendance']);
+        Route::post('formations/{id}/attendance', [App\Http\Controllers\TrainerController::class, 'submitAttendance']);
+        Route::get('attendance/history', [App\Http\Controllers\TrainerController::class, 'getAttendanceHistory']);
+
+        // Rapports et bilans
+        Route::post('formations/{id}/report', [App\Http\Controllers\TrainerController::class, 'createFormationReport']);
+        Route::get('reports', [App\Http\Controllers\TrainerController::class, 'getMyReports']);
+
+        // Documents
+        Route::post('formations/{id}/documents', [App\Http\Controllers\TrainerController::class, 'uploadFormationDocument']);
+        Route::get('formations/{id}/documents', [App\Http\Controllers\TrainerController::class, 'getFormationDocuments']);
+        Route::get('documents', [App\Http\Controllers\TrainerController::class, 'getMyDocuments']);
+        Route::delete('documents/{id}', [App\Http\Controllers\TrainerController::class, 'deleteDocument']);
+    });
+
+    // Routes spécifiques aux employés
+    Route::prefix('employee')->middleware('keycloak:employe')->group(function () {
+        // Dashboard et statistiques
+        Route::get('stats', [App\Http\Controllers\EmployeeController::class, 'getStats']);
+        Route::get('profile', [App\Http\Controllers\EmployeeController::class, 'getProfile']);
+
+        // Accès aux formations
+        Route::get('formations', [App\Http\Controllers\EmployeeController::class, 'getMyFormations']);
+        Route::get('formations/{id}', [App\Http\Controllers\EmployeeController::class, 'getFormationDetails']);
+
+        // Historique des formations
+        Route::get('history', [App\Http\Controllers\EmployeeController::class, 'getFormationHistory']);
+
+        // Accès aux documents
+        Route::get('formations/{id}/documents', [App\Http\Controllers\EmployeeController::class, 'getFormationDocuments']);
+        Route::get('formations/{formationId}/documents/{documentId}/download', [App\Http\Controllers\EmployeeController::class, 'downloadDocument']);
+    });
+
 });
