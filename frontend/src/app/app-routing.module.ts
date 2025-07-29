@@ -1,9 +1,5 @@
 import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
-import { AuthGuard } from './guards/auth.guard';
-import { RoleGuard } from './guards/role.guard';
-import { GuestGuard } from './guards/guest.guard';
-
 import { AppLayoutComponent } from "./layout/app.layout.component";
 
 @NgModule({
@@ -12,38 +8,28 @@ import { AppLayoutComponent } from "./layout/app.layout.component";
             {
                 path: '',
                 component: AppLayoutComponent,
-                canActivate: [AuthGuard],
                 children: [
                     {
                         path: '',
-                        loadChildren: () => import('./demo/components/dashboard/dashboard.module').then(m => m.DashboardModule),
-                        canActivate: [RoleGuard],
-                        data: { roles: ['admin'] }
+                        loadChildren: () => import('./demo/components/dashboard/dashboard.module').then(m => m.DashboardModule)
                     },
                     {
                         path: 'uikit',
-                        loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UikitModule),
-                        canActivate: [RoleGuard],
-                        data: { roles: ['admin'] }
+                        loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UikitModule)
                     },
                     {
                         path: 'trainer',
-                        loadChildren: () => import('./demo/components/Trainers/trainer.module').then(m => m.TrainerModule),
-                        canActivate: [RoleGuard],
-                        data: { roles: ['formateur'] }
+                        loadChildren: () => import('./demo/components/Trainers/trainer.module').then(m => m.TrainerModule)
                     },
                     {
                         path: 'employee',
-                        loadChildren: () => import('./demo/components/Employee/employee.module').then(m => m.EmployeeModule),
-                        canActivate: [RoleGuard],
-                        data: { roles: ['employe'] }
+                        loadChildren: () => import('./demo/components/Employee/employee.module').then(m => m.EmployeeModule)
                     }
                 ],
             },
             {
                 path: 'auth',
-                loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule),
-                canActivate: [GuestGuard]
+                loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule)
             },
             {
                 path: 'unauthorized',

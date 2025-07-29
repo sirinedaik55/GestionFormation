@@ -80,7 +80,7 @@ export class TableDemoComponent implements OnInit {
     async ngOnInit() {
         try {
             // Load formations
-            this.formations = await this.formationService.getFormations();
+            this.formations = await lastValueFrom(this.formationService.getFormations());
             console.log('Loaded formations:', this.formations);
 
             // Load teams for display

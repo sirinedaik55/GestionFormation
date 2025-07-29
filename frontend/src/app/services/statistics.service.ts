@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { ApiService } from './api.service';
 
 export interface DashboardStats {
   totalFormations: number;
@@ -57,81 +56,62 @@ export interface MonthlyFormations {
   providedIn: 'root'
 })
 export class StatisticsService {
-  private apiUrl = 'http://localhost:8000/api';
 
-  constructor(private http: HttpClient) { }
+  constructor(private apiService: ApiService) { }
 
   /**
    * Obtenir les statistiques du dashboard
    */
   getDashboardStats(): Observable<DashboardStats> {
-    // Try protected route first, fallback to test route
-    return this.http.get<DashboardStats>(`${this.apiUrl}/statistics/dashboard`)
-      .pipe(
-        catchError(() => {
-          console.log('Using test route for dashboard stats');
-          return this.http.get<DashboardStats>(`${this.apiUrl}/test/statistics/dashboard`);
-        })
-      );
+    return this.apiService.get<DashboardStats>('statistics/dashboard');
   }
 
   /**
    * Obtenir les statistiques par formation
    */
   getFormationStats(startDate?: string, endDate?: string): Observable<FormationStats[]> {
-    let params = '';
+    const params: any = {};
     if (startDate && endDate) {
-      params = `?start_date=${startDate}&end_date=${endDate}`;
+      params.start_date = startDate;
+      params.end_date = endDate;
     }
-    return this.http.get<FormationStats[]>(`${this.apiUrl}/statistics/formations${params}`);
+    return this.apiService.get<FormationStats[]>('statistics/formations', params);
   }
 
   /**
    * Obtenir les statistiques par équipe
    */
   getTeamStats(): Observable<TeamStats[]> {
-    return this.http.get<TeamStats[]>(`${this.apiUrl}/statistics/teams`);
+    return this.apiService.get<TeamStats[]>('statistics/teams');
   }
 
   /**
    * Obtenir les statistiques de présence des employés
    */
   getEmployeeAttendance(limit?: number): Observable<EmployeeAttendance[]> {
-    const params = limit ? `?limit=${limit}` : '';
-    return this.http.get<EmployeeAttendance[]>(`${this.apiUrl}/statistics/employees${params}`);
+    const params = limit ? { limit } : {};
+    return this.apiService.get<EmployeeAttendance[]>('statistics/employees', params);
   }
 
   /**
    * Obtenir les formations par mois
    */
   getMonthlyFormations(year?: number): Observable<MonthlyFormations[]> {
-    const params = year ? `?year=${year}` : '';
-    return this.http.get<MonthlyFormations[]>(`${this.apiUrl}/statistics/monthly${params}`)
-      .pipe(
-        catchError(() => {
-          console.log('Using test route for monthly formations');
-          return this.http.get<MonthlyFormations[]>(`${this.apiUrl}/test/statistics/monthly${params}`);
-        })
-      );
+    const params = year ? { year } : {};
+    return this.apiService.get<MonthlyFormations[]>('statistics/monthly', params);
   }
 
   /**
    * Exporter les statistiques en PDF
    */
   exportToPDF(type: 'formations' | 'teams' | 'employees', filters?: any): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/statistics/export/pdf`, 
-      { type, filters }, 
-      { responseType: 'blob' }
-    );
+    return this.apiService.post<Blob>('statistics/export/pdf', { type, filters });
   }
 
   /**
    * Exporter les statistiques en CSV
    */
   exportToCSV(type: 'formations' | 'teams' | 'employees', filters?: any): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/statistics/export/csv`, 
-      { type, filters }, 
-      { responseType: 'blob' }
-    );
+    return this.apiService.post<Blob>('statistics/export/csv', { type, filters });
   }
 }

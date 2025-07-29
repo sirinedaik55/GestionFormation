@@ -18,7 +18,7 @@
             <div class="flex align-items-center gap-2">
                 <i class="pi pi-user-circle text-2xl"></i>
                 <div class="flex flex-column">
-                    <span class="font-medium text-sm">{{currentUser.name || currentUser.username}}</span>
+                    <span class="font-medium text-sm">{{currentUser.first_name}} {{currentUser.last_name}}</span>
                     <p-badge
                         [value]="getPrimaryRole()"
                         [class]="getRoleBadgeClass()"

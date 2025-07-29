@@ -44,22 +44,22 @@
 
                     <p-divider></p-divider>
 
-                    <!-- Username Field -->
+                    <!-- Email Field -->
                     <div class="field mb-4">
-                        <label for="username" class="block text-900 text-xl font-medium mb-2">Username</label>
+                        <label for="email" class="block text-900 text-xl font-medium mb-2">Email</label>
                         <input
-                            id="username"
-                            type="text"
-                            placeholder="Enter username"
+                            id="email"
+                            type="email"
+                            placeholder="Enter email"
                             pInputText
-                            formControlName="username"
+                            formControlName="email"
                             class="w-full"
-                            [class.p-invalid]="isFieldInvalid('username')"
+                            [class.p-invalid]="isFieldInvalid('email')"
                             style="padding:1rem;">
                         <small
                             class="p-error block mt-1"
-                            *ngIf="isFieldInvalid('username')">
-                            {{getFieldError('username')}}
+                            *ngIf="isFieldInvalid('email')">
+                            {{getFieldError('email')}}
                         </small>
                     </div>
 

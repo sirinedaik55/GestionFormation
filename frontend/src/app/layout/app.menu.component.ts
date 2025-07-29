@@ -2,8 +2,7 @@ import { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { LayoutService } from './service/app.layout.service';
-import { AuthService } from '../services/auth.service';
-import { KeycloakAuthService } from '../services/keycloak-auth.service';
+import { SimpleAuthService } from '../services/simple-auth.service';
 
 
 @Component({
@@ -15,35 +14,20 @@ export class AppMenuComponent implements OnInit {
 
     constructor(
         public layoutService: LayoutService,
-        private authService: AuthService,
-        private keycloakAuthService: KeycloakAuthService,
+        private authService: SimpleAuthService,
         private router: Router
     ) { }
 
     ngOnInit() {
-        // Try Keycloak user first, then fallback to regular auth
-        const keycloakUser = this.keycloakAuthService.getCurrentUserValue();
-        const authUser = this.authService.getCurrentUserValue();
+        const currentUser = this.authService.getCurrentUser();
 
-        if (keycloakUser) {
-            // Use Keycloak roles (array)
-            if (keycloakUser.roles.includes('admin')) {
-                this.model = this.getAdminMenu();
-            } else if (keycloakUser.roles.includes('trainer') || keycloakUser.roles.includes('formateur')) {
-                this.model = this.getTrainerMenu();
-            } else if (keycloakUser.roles.includes('employee') || keycloakUser.roles.includes('employe')) {
-                this.model = this.getEmployeeMenu();
-            } else {
-                this.model = this.getDefaultMenu();
-            }
-        } else if (authUser) {
-            // Use regular auth role (string)
-            const userRole = authUser.role;
+        if (currentUser) {
+            const userRole = currentUser.role;
             if (userRole === 'admin') {
                 this.model = this.getAdminMenu();
-            } else if (userRole === 'trainer' || userRole === 'formateur') {
+            } else if (userRole === 'formateur') {
                 this.model = this.getTrainerMenu();
-            } else if (userRole === 'employee' || userRole === 'employe') {
+            } else if (userRole === 'employe') {
                 this.model = this.getEmployeeMenu();
             } else {
                 this.model = this.getDefaultMenu();
@@ -206,69 +190,8 @@ export class AppMenuComponent implements OnInit {
 
     logout() {
         console.log('🚪 Logout initiated...');
-
-        // Clear session immediately for instant feedback
-        this.clearLocalSession();
-
-        // Try Keycloak logout first, then fallback to regular auth
-        const keycloakUser = this.keycloakAuthService.getCurrentUserValue();
-
-        if (keycloakUser) {
-            this.keycloakAuthService.logout().subscribe({
-                next: () => {
-                    console.log('✅ Keycloak logout successful');
-                    this.redirectToLogin();
-                },
-                error: (error) => {
-                    console.error('❌ Keycloak logout failed, but continuing with local logout:', error);
-                    this.redirectToLogin();
-                }
-            });
-        } else {
-            // Fallback to regular auth logout
-            this.authService.logout().subscribe({
-                next: () => {
-                    console.log('✅ Server logout successful');
-                    this.redirectToLogin();
-                },
-                error: (error) => {
-                    console.error('❌ Server logout failed, but continuing with local logout:', error);
-                    this.redirectToLogin();
-                }
-            });
-        }
+        this.authService.logout();
     }
 
-    private clearLocalSession() {
-        console.log('🧹 Clearing local session...');
 
-        // Clear all possible auth-related localStorage items
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('current_user');
-        localStorage.removeItem('user_role');
-
-        // Clear any other auth data that might exist
-        const keysToRemove = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && (key.includes('auth') || key.includes('token') || key.includes('user'))) {
-                keysToRemove.push(key);
-            }
-        }
-        keysToRemove.forEach(key => localStorage.removeItem(key));
-
-        console.log('✅ Local session cleared');
-    }
-
-    private redirectToLogin() {
-        console.log('🔄 Redirecting to login...');
-
-        this.router.navigate(['/auth/login']).then(() => {
-            console.log('✅ Redirected to login page');
-            // Force page reload to ensure completely clean state
-            setTimeout(() => {
-                window.location.reload();
-            }, 100);
-        });
-    }
 }

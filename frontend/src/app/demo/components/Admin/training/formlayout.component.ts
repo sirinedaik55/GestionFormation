@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Formation } from '../../../../models/formation.model';
 import { FormationService } from '../../../../services/formation.service';
 import { TeamService } from '../../../../services/team.service';
-import { UserService } from '../../../service/user.service';
+import { UserService } from '../../../../services/user.service';
 import { FormationParticipantService, FormationParticipant } from '../../../../services/formation-participant.service';
 import { Team } from '../../../../models/team.model';
 import { User } from '../../../../models/user.model';
@@ -61,14 +61,14 @@ export class FormLayoutComponent implements OnInit {
     async ngOnInit() {
         try {
             // Load formations
-            this.formations = await this.formationService.getFormations();
+            this.formations = await lastValueFrom(this.formationService.getFormations());
 
             // Load teams
             this.teams = await lastValueFrom(this.teamService.getTeams());
 
             // Load trainers
-            const trainersData = await this.userService.getUsersByRole('formateur');
-            this.trainers = trainersData.map(trainer => ({
+            const trainersData = await lastValueFrom(this.userService.getUsersByRole('formateur'));
+            this.trainers = trainersData.map((trainer: any) => ({
                 ...trainer,
                 name: `${trainer.first_name} ${trainer.last_name}${trainer.specialite ? ' (' + trainer.specialite + ')' : ''}`
             }));
@@ -153,12 +153,20 @@ export class FormLayoutComponent implements OnInit {
                 } else {
                     // Create new formation
                     const newFormation = await lastValueFrom(
-                        this.formationService.createFormation(this.formation)
+                        this.formationService.createFormation({
+                            name: this.formation.name,
+                            description: this.formation.description || '',
+                            date: this.formation.date,
+                            duree: this.formation.duree,
+                            equipe_id: this.formation.equipe_id,
+                            formateur_id: this.formation.formateur_id,
+                            room: this.formation.room
+                        })
                     );
                     this.formations.push(newFormation);
 
                     // Force refresh the list to ensure it's up to date
-                    this.formations = await this.formationService.getFormations();
+                    this.formations = await lastValueFrom(this.formationService.getFormations());
 
                     this.messageService.add({
                         severity: 'success',
@@ -303,6 +311,54 @@ export class FormLayoutComponent implements OnInit {
         // Cette méthode sera améliorée pour charger le nombre réel de participants
         return "View";
     }
+
+    async autoAssignTeamMembers(formation: Formation) {
+        try {
+            if (!formation.equipe_id) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Warning',
+                    detail: 'Please select a team first',
+                    life: 3000
+                });
+                return;
+            }
+
+            // Get team members
+            const teamMembers = await lastValueFrom(this.teamService.getTeamMembers(formation.equipe_id));
+
+            // Auto-assign all team members to the formation
+            for (const member of teamMembers) {
+                try {
+                    await lastValueFrom(this.formationService.updateParticipantStatus(
+                        formation.id,
+                        member.id,
+                        { status: 'confirmed' }
+                    ));
+                } catch (error) {
+                    console.warn(`Failed to assign member ${member.id} to formation`, error);
+                }
+            }
+
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: `${teamMembers.length} team members assigned to formation`,
+                life: 3000
+            });
+
+        } catch (error) {
+            console.error('Error auto-assigning team members:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to auto-assign team members',
+                life: 3000
+            });
+        }
+    }
+
+
 
     async markAttendance(participant: FormationParticipant, attendance: 'present' | 'absent') {
         if (!this.selectedFormation) return;

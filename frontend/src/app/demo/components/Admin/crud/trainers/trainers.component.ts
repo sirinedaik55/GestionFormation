@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { User, getFullName, CreateUserRequest, UpdateUserRequest } from '../../../../../models/user.model';
+import { User, getFullName } from '../../../../../models/user.model';
+import { CreateUserRequest, UpdateUserRequest } from '../../../../../services/user.service';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
-import { UserService } from '../../../../service/user.service';
+import { UserService } from '../../../../../services/user.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -24,8 +25,8 @@ export class TrainersComponent implements OnInit {
     async ngOnInit() {
         try {
             // Load trainers
-            const users = await this.userService.getUsersByRole('formateur');
-            this.users = users.map(user => ({
+            const users = await lastValueFrom(this.userService.getUsersByRole('formateur'));
+            this.users = users.map((user: any) => ({
                 ...user,
                 name: getFullName(user)
             }));

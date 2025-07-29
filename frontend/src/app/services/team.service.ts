@@ -1,27 +1,95 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Team } from '../models/team.model';
+import { ApiService } from './api.service';
 
-@Injectable({ providedIn: 'root' })
+export interface Team {
+    id: number;
+    name: string;
+    speciality: string;
+    created_at?: string;
+    updated_at?: string;
+
+    // Relations
+    members?: {
+        id: number;
+        first_name: string;
+        last_name: string;
+        email: string;
+        role: string;
+    }[];
+    formations?: {
+        id: number;
+        name: string;
+        date: string;
+        status: string;
+    }[];
+    memberCount?: number;
+    formationCount?: number;
+}
+
+export interface CreateTeamRequest {
+    name: string;
+    speciality: string;
+}
+
+export interface UpdateTeamRequest {
+    name?: string;
+    speciality?: string;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class TeamService {
-  private apiUrl = 'http://localhost:8000/api/teams';
 
-  constructor(private http: HttpClient) {}
+    constructor(private apiService: ApiService) {}
 
-  getTeams(): Observable<Team[]> {
-    return this.http.get<Team[]>(this.apiUrl);
-  }
+    // Get all teams
+    getTeams(params?: any): Observable<Team[]> {
+        return this.apiService.get<Team[]>('teams', params);
+    }
 
-  addTeam(team: Team): Observable<Team> {
-    return this.http.post<Team>(this.apiUrl, team);
-  }
+    // Get team by ID
+    getTeam(id: number): Observable<Team> {
+        return this.apiService.get<Team>(`teams/${id}`);
+    }
 
-  updateTeam(team: Team): Observable<Team> {
-    return this.http.put<Team>(`${this.apiUrl}/${team.id}`, team);
-  }
+    // Create new team
+    createTeam(team: CreateTeamRequest): Observable<Team> {
+        return this.apiService.post<Team>('teams', team);
+    }
 
-  deleteTeam(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
+    // Update team
+    updateTeam(id: number, team: UpdateTeamRequest): Observable<Team> {
+        return this.apiService.put<Team>(`teams/${id}`, team);
+    }
+
+    // Delete team
+    deleteTeam(id: number): Observable<void> {
+        return this.apiService.delete<void>(`teams/${id}`);
+    }
+
+    // Legacy methods for compatibility
+    addTeam(team: CreateTeamRequest): Observable<Team> {
+        return this.createTeam(team);
+    }
+
+    updateTeamLegacy(team: Team): Observable<Team> {
+        return this.updateTeam(team.id, { name: team.name, speciality: team.speciality });
+    }
+
+    // Get team members
+    getTeamMembers(teamId: number): Observable<any[]> {
+        return this.apiService.get<any[]>(`teams/${teamId}/members`);
+    }
+
+    // Get team statistics
+    getTeamStats(teamId: number): Observable<any> {
+        return this.apiService.get<any>(`teams/${teamId}/stats`);
+    }
+
+    // Get all teams statistics
+    getAllTeamsStats(): Observable<any> {
+        return this.apiService.get<any>('statistics/teams');
+    }
 }

@@ -82,7 +82,10 @@ export class TeamsComponent implements OnInit {
             try {
                 if (this.team.id) {
                     // Update existing team
-                    const updatedTeam = await lastValueFrom(this.teamService.updateTeam(this.team));
+                    const updatedTeam = await lastValueFrom(this.teamService.updateTeam(this.team.id, {
+                        name: this.team.name,
+                        speciality: this.team.speciality || ''
+                    }));
                     const index = this.findIndexById(this.team.id);
                     this.teams[index] = updatedTeam;
                     this.messageService.add({
@@ -93,7 +96,10 @@ export class TeamsComponent implements OnInit {
                     });
                 } else {
                     // Create new team
-                    const newTeam = await lastValueFrom(this.teamService.addTeam(this.team));
+                    const newTeam = await lastValueFrom(this.teamService.addTeam({
+                        name: this.team.name,
+                        speciality: this.team.speciality || ''
+                    }));
                     this.teams.push(newTeam);
                     this.messageService.add({
                         severity: 'success',

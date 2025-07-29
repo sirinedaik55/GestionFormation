@@ -51,7 +51,7 @@ export class DocumentsComponent implements OnInit {
 
   async loadFormations() {
     try {
-      this.formations = await this.formationService.getFormations();
+      this.formations = await lastValueFrom(this.formationService.getFormations());
     } catch (error) {
       console.error('Error loading formations:', error);
     }

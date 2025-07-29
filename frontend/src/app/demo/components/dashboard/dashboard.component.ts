@@ -74,16 +74,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     async loadRecentFormations() {
         try {
             this.loadingFormations = true;
-            const formations = await this.formationService.getFormations();
+            const formations = await lastValueFrom(this.formationService.getFormations());
             // Get the 5 most recent formations
             this.recentFormations = formations
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .slice(0, 5)
-                .map(formation => ({
+                .map((formation: any) => ({
                     ...formation,
-                    team: formation.equipe?.name || 'No team',
-                    trainer: formation.formateur ?
-                        `${formation.formateur.first_name} ${formation.formateur.last_name}` :
+                    team: formation.team?.name || 'No team',
+                    trainer: formation.trainer ?
+                        `${formation.trainer.first_name} ${formation.trainer.last_name}` :
                         'No trainer',
                     status: this.getFormationStatus(formation)
                 }));

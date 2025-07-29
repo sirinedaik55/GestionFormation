@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
-import { KeycloakAuthService } from '../../../../services/keycloak-auth.service';
+import { SimpleAuthService } from '../../../../services/simple-auth.service';
 
 @Component({
     selector: 'app-login',
@@ -36,13 +36,13 @@ export class LoginComponent implements OnInit {
 
     constructor(
         private fb: FormBuilder,
-        private authService: KeycloakAuthService,
+        private authService: SimpleAuthService,
         public layoutService: LayoutService,
         public router: Router,
         private messageService: MessageService
     ) {
         this.loginForm = this.fb.group({
-            username: ['', [Validators.required]],
+            email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(6)]]
         });
     }
@@ -65,26 +65,34 @@ export class LoginComponent implements OnInit {
         const credentials = this.loginForm.value;
 
         this.authService.login(credentials).subscribe({
-            next: (response) => {
+            next: (response: any) => {
                 this.loading = false;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Login successful!'
-                });
 
-                // Redirect after successful login
-                setTimeout(() => {
-                    this.authService.redirectAfterLogin();
-                }, 1000);
+                if (response.success) {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Login successful!'
+                    });
+
+                    // Redirect after successful login
+                    setTimeout(() => {
+                        this.authService.redirectAfterLogin();
+                    }, 1000);
+                } else {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Login Failed',
+                        detail: response.message || 'Invalid credentials'
+                    });
+                }
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.loading = false;
-                const errorMessage = error.error?.message || 'Login failed. Please try again.';
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Login Failed',
-                    detail: errorMessage
+                    detail: 'An error occurred. Please try again.'
                 });
             }
         });

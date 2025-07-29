@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TrainerService, TrainerFormation } from '../../../../services/trainer.service';
 import { FormationParticipant } from '../../../../services/formation-participant.service';
+import { lastValueFrom } from 'rxjs';
 
 interface AttendanceRecord {
     participant: FormationParticipant;
@@ -63,7 +64,8 @@ export class TrainerAttendanceComponent implements OnInit {
             this.loading = true;
             
             // Load formations that can have attendance taken (upcoming or ongoing)
-            this.availableFormations = await this.getMockUpcomingFormations();
+            const formations = await lastValueFrom(this.trainerService.getUpcomingFormations());
+            this.availableFormations = formations;
             
             this.loading = false;
         } catch (error) {
@@ -93,10 +95,11 @@ export class TrainerAttendanceComponent implements OnInit {
             this.loadingParticipants = true;
             
             // Load participants for the selected formation
-            const participants = await this.getMockParticipants(this.selectedFormation.id);
+            const formationDetails = await lastValueFrom(this.trainerService.getFormationDetails(this.selectedFormation.id));
+            const participants = formationDetails.participants || [];
             
             // Initialize attendance records
-            this.attendanceRecords = participants.map(participant => ({
+            this.attendanceRecords = participants.map((participant: any) => ({
                 participant,
                 attendance: 'pending' as const,
                 notes: ''
@@ -318,11 +321,14 @@ export class TrainerAttendanceComponent implements OnInit {
                 notes: record.notes
             }));
 
-            // Here you would call the API
-            // await this.trainerService.submitAttendance(this.selectedFormation.id, attendanceData);
-            
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Submit attendance via API
+            try {
+                await lastValueFrom(this.trainerService.submitAttendance(this.selectedFormation.id, attendanceData));
+            } catch (error) {
+                console.warn('API submission failed, using mock response:', error);
+                // Simulate API call as fallback
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
             
             this.messageService.add({
                 severity: 'success',

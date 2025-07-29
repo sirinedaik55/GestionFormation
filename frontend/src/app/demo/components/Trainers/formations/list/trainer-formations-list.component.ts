@@ -48,8 +48,8 @@ export class TrainerFormationsListComponent implements OnInit {
         try {
             this.loading = true;
 
-            // Use mock data for now (API will be implemented later)
-            this.formations = await this.getMockFormations();
+            // Use real API call with fallback to mock data
+            this.formations = await lastValueFrom(this.trainerService.getMyFormations());
 
             this.loading = false;
         } catch (error) {
@@ -64,7 +64,7 @@ export class TrainerFormationsListComponent implements OnInit {
         }
     }
 
-    // Mock data method (to be replaced with real API calls)
+    // Mock data method (fallback when API fails)
     private async getMockFormations(): Promise<TrainerFormation[]> {
         await new Promise(resolve => setTimeout(resolve, 800));
 

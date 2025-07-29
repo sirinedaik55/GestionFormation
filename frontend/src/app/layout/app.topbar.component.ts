@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { LayoutService } from "./service/app.layout.service";
-import { KeycloakAuthService, KeycloakUser } from '../services/keycloak-auth.service';
+import { SimpleAuthService, SimpleUser } from '../services/simple-auth.service';
 
 @Component({
     selector: 'app-topbar',
@@ -11,12 +11,12 @@ import { KeycloakAuthService, KeycloakUser } from '../services/keycloak-auth.ser
 export class AppTopBarComponent implements OnInit, OnDestroy {
 
     items!: MenuItem[];
-    currentUser: KeycloakUser | null = null;
+    currentUser: SimpleUser | null = null;
     private userSubscription?: Subscription;
 
     constructor(
         public layoutService: LayoutService,
-        private authService: KeycloakAuthService
+        private authService: SimpleAuthService
     ) { }
 
     ngOnInit(): void {
@@ -34,7 +34,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
         if (this.currentUser) {
             this.items = [
                 {
-                    label: this.currentUser.name || this.currentUser.username,
+                    label: `${this.currentUser.first_name} ${this.currentUser.last_name}`,
                     icon: 'pi pi-user',
                     items: [
                         {
@@ -72,17 +72,17 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     }
 
     logout(): void {
-        this.authService.logout().subscribe();
+        this.authService.logout();
     }
 
     getRoleBadgeClass(): string {
         if (!this.currentUser) return '';
 
-        if (this.currentUser.roles.includes('admin')) {
+        if (this.currentUser.role === 'admin') {
             return 'p-badge-danger';
-        } else if (this.currentUser.roles.includes('trainer')) {
+        } else if (this.currentUser.role === 'formateur') {
             return 'p-badge-info';
-        } else if (this.currentUser.roles.includes('employee')) {
+        } else if (this.currentUser.role === 'employe') {
             return 'p-badge-success';
         }
 
@@ -92,12 +92,12 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     getPrimaryRole(): string {
         if (!this.currentUser) return '';
 
-        if (this.currentUser.roles.includes('admin')) {
+        if (this.currentUser.role === 'admin') {
             return 'Admin';
-        } else if (this.currentUser.roles.includes('trainer')) {
-            return 'Trainer';
-        } else if (this.currentUser.roles.includes('employee')) {
-            return 'Employee';
+        } else if (this.currentUser.role === 'formateur') {
+            return 'Formateur';
+        } else if (this.currentUser.role === 'employe') {
+            return 'Employé';
         }
 
         return 'User';

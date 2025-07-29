@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { User, getFullName } from '../../../../../models/user.model';
+import { CreateUserRequest, UpdateUserRequest } from '../../../../../services/user.service';
 import { Team } from '../../../../../models/team.model';
 import { TeamService } from '../../../../../services/team.service';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
-import { UserService } from '../../../../service/user.service';
+import { UserService } from '../../../../../services/user.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -27,8 +28,8 @@ export class EmployeesComponent implements OnInit {
     async ngOnInit() {
         try {
             // Load employees
-            const users = await this.userService.getUsersByRole('employe');
-            this.users = users.map(user => ({
+            const users = await lastValueFrom(this.userService.getUsersByRole('employe'));
+            this.users = users.map((user: any) => ({
                 ...user,
                 name: getFullName(user)
             }));

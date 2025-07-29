@@ -66,7 +66,7 @@ export class ReportsComponent implements OnInit {
       }));
 
       // Load formations
-      this.formations = await this.formationService.getFormations();
+      this.formations = await lastValueFrom(this.formationService.getFormations());
 
     } catch (error) {
       console.error('Error loading filter options:', error);
