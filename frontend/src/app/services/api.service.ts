@@ -19,8 +19,12 @@ export class ApiService {
 
     constructor(private http: HttpClient) {}
 
+    getApiUrl(): string {
+        return this.apiUrl;
+    }
+
     private getHeaders(): HttpHeaders {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('authToken');
         let headers = new HttpHeaders({
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -92,7 +96,7 @@ export class ApiService {
             });
         }
 
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('authToken');
         let headers = new HttpHeaders();
         if (token) {
             headers = headers.set('Authorization', `Bearer ${token}`);

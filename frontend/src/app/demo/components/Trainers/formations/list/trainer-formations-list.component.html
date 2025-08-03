@@ -148,17 +148,19 @@
                                     pTooltip="View Details"
                                     (click)="viewDetails(formation)">
                                 </p-button>
-                                <p-button 
-                                    icon="pi pi-users" 
+                                <p-button
+                                    icon="pi pi-users"
                                     class="p-button-rounded p-button-text p-button-sm"
                                     pTooltip="Manage Participants"
-                                    [disabled]="formation.status === 'cancelled'">
+                                    [disabled]="formation.status === 'cancelled'"
+                                    (click)="manageParticipants(formation)">
                                 </p-button>
-                                <p-button 
-                                    icon="pi pi-check-square" 
+                                <p-button
+                                    icon="pi pi-check-square"
                                     class="p-button-rounded p-button-text p-button-sm"
                                     pTooltip="Take Attendance"
-                                    [disabled]="formation.status !== 'ongoing' && formation.status !== 'upcoming'">
+                                    [disabled]="formation.status !== 'ongoing' && formation.status !== 'upcoming'"
+                                    (click)="takeAttendance(formation)">
                                 </p-button>
                             </div>
                         </td>

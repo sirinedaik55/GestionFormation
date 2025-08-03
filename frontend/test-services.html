@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Services</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { margin: 5px; padding: 10px; }
+        .data { max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>Test Angular Services</h1>
+    
+    <div>
+        <h2>Instructions</h2>
+        <p>1. Ouvrez la console du navigateur (F12)</p>
+        <p>2. Connectez-vous d'abord avec admin@formation.com / password123</p>
+        <p>3. Naviguez vers les pages admin pour voir si les données se chargent</p>
+        <p>4. Vérifiez les messages dans la console</p>
+    </div>
+
+    <div>
+        <h2>Pages à tester</h2>
+        <ul>
+            <li><a href="http://localhost:4200/auth/login" target="_blank">Page de connexion</a></li>
+            <li><a href="http://localhost:4200/admin/dashboard" target="_blank">Dashboard Admin</a></li>
+            <li><a href="http://localhost:4200/admin/employees" target="_blank">Gestion Employés</a></li>
+            <li><a href="http://localhost:4200/admin/trainers" target="_blank">Gestion Formateurs</a></li>
+            <li><a href="http://localhost:4200/admin/teams" target="_blank">Gestion Équipes</a></li>
+            <li><a href="http://localhost:4200/admin/formations" target="_blank">Gestion Formations</a></li>
+        </ul>
+    </div>
+
+    <div>
+        <h2>Données Mock Disponibles</h2>
+        <h3>Employés (3)</h3>
+        <ul>
+            <li>Jean Dupont - jean.dupont@formation.com (Développement Web)</li>
+            <li>Marie Martin - marie.martin@formation.com (UI/UX Design)</li>
+            <li>Pierre Bernard - pierre.bernard@formation.com (Sécurité Informatique)</li>
+        </ul>
+
+        <h3>Formateurs (3)</h3>
+        <ul>
+            <li>Marie Dubois - marie.dubois@formation.com (Angular & TypeScript, Salle A)</li>
+            <li>Pierre Martin - pierre.martin@formation.com (Laravel & PHP, Salle B)</li>
+            <li>Sophie Bernard - sophie.bernard@formation.com (UI/UX Design, Salle C)</li>
+        </ul>
+
+        <h3>Équipes (5)</h3>
+        <ul>
+            <li>Développement Web (Frontend) - 5 membres, 3 formations</li>
+            <li>UI/UX Design (Design) - 3 membres, 2 formations</li>
+            <li>Sécurité Informatique (Security) - 4 membres, 1 formation</li>
+            <li>Data Science (Analytics) - 2 membres, 2 formations</li>
+            <li>DevOps (Infrastructure) - 3 membres, 1 formation</li>
+        </ul>
+
+        <h3>Formations (4)</h3>
+        <ul>
+            <li>Formation Angular Avancé - 15 août 2025 (3 jours)</li>
+            <li>Formation Laravel & PHP - 20 août 2025 (5 jours)</li>
+            <li>Formation UI/UX Design - 25 août 2025 (2 jours)</li>
+            <li>Formation Cybersécurité - 1er septembre 2025 (4 jours)</li>
+        </ul>
+    </div>
+
+    <div>
+        <h2>Statistiques Dashboard</h2>
+        <ul>
+            <li>Total Formations: 4</li>
+            <li>Total Employés: 9</li>
+            <li>Total Équipes: 5</li>
+            <li>Total Formateurs: 4</li>
+            <li>Taux de Présence Global: 85.5%</li>
+            <li>Formations à Venir: 2</li>
+            <li>Formations Terminées: 1</li>
+            <li>Formations Annulées: 1</li>
+        </ul>
+    </div>
+
+    <div>
+        <h2>Notes Techniques</h2>
+        <p><strong>Fallback System:</strong> Si l'API backend ne répond pas, les services utilisent automatiquement des données mock.</p>
+        <p><strong>Console Logs:</strong> Vérifiez la console pour voir les messages "API failed, using mock data"</p>
+        <p><strong>Authentication:</strong> Le système essaie d'abord l'API, puis utilise l'authentification mock si elle échoue</p>
+    </div>
+</body>
+</html>

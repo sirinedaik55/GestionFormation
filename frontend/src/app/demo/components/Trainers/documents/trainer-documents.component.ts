@@ -34,12 +34,14 @@ export class TrainerDocumentsComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        console.log('🚀 TrainerDocumentsComponent ngOnInit - Component loaded');
         this.loadDocuments();
 
         // Check if we should open upload dialog automatically
         this.route.queryParams.subscribe(params => {
+            console.log('📋 Query params received:', params);
             if (params['action'] === 'upload') {
-                console.log('Auto-opening upload dialog from dashboard');
+                console.log('🔄 Auto-opening upload dialog from dashboard');
                 setTimeout(() => {
                     this.showUploadDialog();
                 }, 500); // Small delay to ensure component is fully loaded
@@ -77,19 +79,74 @@ export class TrainerDocumentsComponent implements OnInit {
     }
 
     showUploadDialog() {
+        console.log('🔄 Opening upload dialog');
         this.uploadDialog = true;
+        this.selectedFiles = [];
+        this.uploadFormation = '';
+        this.uploadDescription = '';
+
+        // Check if formation info was passed via query params
+        this.route.queryParams.subscribe(params => {
+            if (params['formationName']) {
+                this.uploadFormation = params['formationName'];
+                console.log('📋 Pre-filled formation:', this.uploadFormation);
+            }
+        });
+    }
+
+    onFileSelect(event: any) {
+        console.log('📁 Files selected:', event);
+        console.log('📁 Event files:', event.files);
+        console.log('📁 Current files:', event.currentFiles);
+
+        // PrimeNG FileUpload peut retourner les fichiers dans event.files ou event.currentFiles
+        this.selectedFiles = event.files || event.currentFiles || [];
+
+        // Assurer que c'est un tableau
+        if (!Array.isArray(this.selectedFiles)) {
+            this.selectedFiles = [];
+        }
+
+        console.log('📁 Selected files array:', this.selectedFiles);
+
+        // Show selected files info
+        if (this.selectedFiles.length > 0) {
+            try {
+                const fileNames = this.selectedFiles.map(f => f.name).join(', ');
+                console.log('✅ Selected files:', fileNames);
+
+                // Afficher un message de confirmation
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Files Selected',
+                    detail: `${this.selectedFiles.length} file(s) selected`,
+                    life: 2000
+                });
+            } catch (error) {
+                console.error('❌ Error processing selected files:', error);
+                this.selectedFiles = [];
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error processing selected files',
+                    life: 3000
+                });
+            }
+        }
+    }
+
+    cancelUpload() {
+        console.log('❌ Upload cancelled');
+        this.uploadDialog = false;
         this.selectedFiles = [];
         this.uploadFormation = '';
         this.uploadDescription = '';
     }
 
-    onFileSelect(event: any) {
-        this.selectedFiles = event.files;
-    }
-
     uploadDocuments() {
-        console.log('uploadDocuments called - staying on documents page');
+        console.log('📤 uploadDocuments called');
 
+        // Validation
         if (this.selectedFiles.length === 0) {
             this.messageService.add({
                 severity: 'warn',
@@ -100,18 +157,43 @@ export class TrainerDocumentsComponent implements OnInit {
             return;
         }
 
-        // Simulate upload
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `${this.selectedFiles.length} file(s) uploaded successfully`,
-            life: 3000
+        if (!this.uploadFormation.trim()) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Please enter formation name',
+                life: 3000
+            });
+            return;
+        }
+
+        console.log('📋 Upload details:', {
+            formation: this.uploadFormation,
+            description: this.uploadDescription,
+            filesCount: this.selectedFiles.length,
+            files: this.selectedFiles.map(f => ({ name: f.name, size: f.size }))
         });
 
+        // Simulate upload process
+        const fileNames = this.selectedFiles.map(f => f.name).join(', ');
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Upload Successful',
+            detail: `${this.selectedFiles.length} file(s) uploaded: ${fileNames}`,
+            life: 5000
+        });
+
+        // Close dialog and reset
         this.uploadDialog = false;
+        this.selectedFiles = [];
+        this.uploadFormation = '';
+        this.uploadDescription = '';
+
+        // Reload documents list
         this.loadDocuments();
 
-        console.log('Documents uploaded successfully, staying on current page');
+        console.log('✅ Documents uploaded successfully');
     }
 
     downloadDocument(doc: Document) {
@@ -122,6 +204,8 @@ export class TrainerDocumentsComponent implements OnInit {
             life: 2000
         });
     }
+
+
 
     deleteDocument(doc: Document) {
         this.documents = this.documents.filter(d => d.id !== doc.id);

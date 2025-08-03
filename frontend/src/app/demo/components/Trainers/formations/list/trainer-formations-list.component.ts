@@ -197,7 +197,7 @@ export class TrainerFormationsListComponent implements OnInit {
     }
 
     viewDetails(formation: TrainerFormation) {
-        this.router.navigate(['/trainer/formations/details', formation.id]);
+        this.router.navigate(['/dashboard/trainer/formations/details', formation.id]);
     }
 
     getStatusSeverity(status: string): string {
@@ -241,6 +241,20 @@ export class TrainerFormationsListComponent implements OnInit {
     }
 
     navigateToCalendar() {
-        this.router.navigate(['/trainer/formations/calendar']);
+        this.router.navigate(['/dashboard/trainer/formations/calendar']);
+    }
+
+    manageParticipants(formation: TrainerFormation) {
+        console.log('Managing participants for formation:', formation.name);
+        // Navigate to participants management page
+        this.router.navigate(['/dashboard/trainer/formations/participants', formation.id]);
+    }
+
+    takeAttendance(formation: TrainerFormation) {
+        console.log('Taking attendance for formation:', formation.name);
+        // Navigate to attendance page with formation ID
+        this.router.navigate(['/dashboard/trainer/attendance'], {
+            queryParams: { formationId: formation.id, formationName: formation.name }
+        });
     }
 }

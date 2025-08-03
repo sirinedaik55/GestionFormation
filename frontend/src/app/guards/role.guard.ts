@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, CanActivateChild, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { KeycloakAuthService } from '../services/keycloak-auth.service';
+import { SimpleAuthService } from '../services/simple-auth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -8,7 +8,7 @@ import { KeycloakAuthService } from '../services/keycloak-auth.service';
 export class RoleGuard implements CanActivate, CanActivateChild {
 
     constructor(
-        private authService: KeycloakAuthService,
+        private authService: SimpleAuthService,
         private router: Router
     ) {}
 
@@ -33,22 +33,30 @@ export class RoleGuard implements CanActivate, CanActivateChild {
             return true;
         }
 
-        const user = this.authService.getCurrentUserValue();
+        const user = this.authService.getCurrentUser();
 
         if (!user) {
             this.router.navigate(['/auth/login']);
             return false;
         }
 
-        const hasRole = this.authService.hasAnyRole(expectedRoles);
+        const hasRole = this.hasAnyRole(user.role, expectedRoles);
 
         if (!hasRole) {
             // Redirect based on user's actual role
-            this.redirectToAuthorizedPage(user.roles);
+            this.redirectToAuthorizedPage([user.role]);
             return false;
         }
 
         return true;
+    }
+
+    private hasAnyRole(userRole: string, requiredRoles: string[]): boolean {
+        return requiredRoles.includes(userRole) ||
+               (userRole === 'formateur' && requiredRoles.includes('trainer')) ||
+               (userRole === 'trainer' && requiredRoles.includes('formateur')) ||
+               (userRole === 'employe' && requiredRoles.includes('employee')) ||
+               (userRole === 'employee' && requiredRoles.includes('employe'));
     }
 
     private redirectToAuthorizedPage(userRoles: string[]): void {

@@ -27,7 +27,7 @@ class KeycloakAuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
@@ -36,7 +36,7 @@ class KeycloakAuthController extends Controller
                 'grant_type' => 'password',
                 'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
-                'username' => $request->username,
+                'username' => $request->email,
                 'password' => $request->password,
                 'scope' => 'openid profile email'
             ]);
@@ -251,7 +251,7 @@ class KeycloakAuthController extends Controller
     public function mockLogin(Request $request)
     {
         $request->validate([
-            'username' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
@@ -299,10 +299,10 @@ class KeycloakAuthController extends Controller
             ]
         ];
 
-        $username = $request->username;
+        $email = $request->email;
         $password = $request->password;
 
-        if (!isset($mockUsers[$username]) || $mockUsers[$username]['password'] !== $password) {
+        if (!isset($mockUsers[$email]) || $mockUsers[$email]['password'] !== $password) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials'
@@ -311,13 +311,13 @@ class KeycloakAuthController extends Controller
 
         // Generate mock tokens
         $accessToken = base64_encode(json_encode([
-            'user' => $mockUsers[$username]['user'],
+            'user' => $mockUsers[$email]['user'],
             'exp' => time() + 3600, // 1 hour
             'iat' => time()
         ]));
 
         $refreshToken = base64_encode(json_encode([
-            'user_id' => $mockUsers[$username]['user']['id'],
+            'user_id' => $mockUsers[$email]['user']['id'],
             'exp' => time() + 86400, // 24 hours
             'iat' => time()
         ]));
@@ -330,7 +330,7 @@ class KeycloakAuthController extends Controller
                 'refresh_token' => $refreshToken,
                 'expires_in' => 3600,
                 'token_type' => 'Bearer',
-                'user' => $mockUsers[$username]['user']
+                'user' => $mockUsers[$email]['user']
             ]
         ]);
     }

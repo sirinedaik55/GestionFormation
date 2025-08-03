@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { KeycloakAuthService } from '../services/keycloak-auth.service';
-import { TokenService } from '../services/token.service';
+import { SimpleAuthService } from '../services/simple-auth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -9,8 +8,7 @@ import { TokenService } from '../services/token.service';
 export class GuestGuard implements CanActivate {
 
     constructor(
-        private authService: KeycloakAuthService,
-        private tokenService: TokenService,
+        private authService: SimpleAuthService,
         private router: Router
     ) {}
 
@@ -18,11 +16,11 @@ export class GuestGuard implements CanActivate {
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot
     ): boolean {
-        const hasToken = this.tokenService.hasToken();
+        const isAuthenticated = this.authService.isAuthenticated();
 
-        if (hasToken) {
-            // User is already authenticated, redirect to appropriate dashboard
-            this.authService.redirectAfterLogin();
+        if (isAuthenticated) {
+            // User is already authenticated, redirect to dashboard
+            this.router.navigate(['/dashboard']);
             return false;
         } else {
             // User is not authenticated, allow access to login page

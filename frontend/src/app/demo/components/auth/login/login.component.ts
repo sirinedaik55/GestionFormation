@@ -9,19 +9,17 @@ import { SimpleAuthService } from '../../../../services/simple-auth.service';
     selector: 'app-login',
     templateUrl: './login.component.html',
     styles: [`
+
+
+        /* Simple Form Styles */
         :host ::ng-deep .p-password input {
             width: 100%;
-            padding:1rem;
+            padding: 1rem;
         }
 
-        :host ::ng-deep .pi-eye{
-            transform:scale(1.6);
-            margin-right: 1rem;
-            color: var(--primary-color) !important;
-        }
-
-        :host ::ng-deep .pi-eye-slash{
-            transform:scale(1.6);
+        :host ::ng-deep .pi-eye,
+        :host ::ng-deep .pi-eye-slash {
+            transform: scale(1.6);
             margin-right: 1rem;
             color: var(--primary-color) !important;
         }
@@ -50,7 +48,7 @@ export class LoginComponent implements OnInit {
     ngOnInit(): void {
         // Pre-fill with demo credentials for testing
         this.loginForm.patchValue({
-            username: 'admin@formation.com',
+            email: 'admin@formation.com',
             password: 'admin123'
         });
     }
@@ -64,21 +62,25 @@ export class LoginComponent implements OnInit {
         this.loading = true;
         const credentials = this.loginForm.value;
 
+        console.log('Login attempt with:', credentials);
+
         this.authService.login(credentials).subscribe({
             next: (response: any) => {
+                console.log('Login response:', response);
                 this.loading = false;
 
                 if (response.success) {
+                    console.log('Login successful, redirecting...');
+                    const user = response.user;
+
                     this.messageService.add({
                         severity: 'success',
-                        summary: 'Success',
-                        detail: 'Login successful!'
+                        summary: 'Login Successful',
+                        detail: `Welcome ${user.first_name} ${user.last_name}!`
                     });
 
-                    // Redirect after successful login
-                    setTimeout(() => {
-                        this.authService.redirectAfterLogin();
-                    }, 1000);
+                    // Redirect based on user role
+                    this.redirectBasedOnRole(user.role);
                 } else {
                     this.messageService.add({
                         severity: 'error',
@@ -88,6 +90,7 @@ export class LoginComponent implements OnInit {
                 }
             },
             error: (error: any) => {
+                console.error('Login error:', error);
                 this.loading = false;
                 this.messageService.add({
                     severity: 'error',
@@ -104,13 +107,52 @@ export class LoginComponent implements OnInit {
 
     fillDemoCredentials(role: 'admin' | 'trainer' | 'employee'): void {
         const credentials = {
-            admin: { username: 'admin@formation.com', password: 'admin123' },
-            trainer: { username: 'trainer@formation.com', password: 'trainer123' },
-            employee: { username: 'employee@formation.com', password: 'employee123' }
+            admin: { email: 'admin@formation.com', password: 'admin123' },
+            trainer: { email: 'trainer@formation.com', password: 'trainer123' },
+            employee: { email: 'employee@formation.com', password: 'employee123' }
         };
 
         this.loginForm.patchValue(credentials[role]);
     }
+
+    private redirectBasedOnRole(role: string): void {
+        console.log('🔄 Redirecting user with role:', role);
+
+        let targetRoute: string;
+
+        switch (role) {
+            case 'admin':
+                targetRoute = '/dashboard';
+                break;
+            case 'formateur':
+            case 'trainer':
+                targetRoute = '/dashboard/trainer';
+                break;
+            case 'employe':
+            case 'employee':
+                targetRoute = '/dashboard/employee';
+                break;
+            default:
+                console.warn('Unknown role:', role, 'redirecting to dashboard');
+                targetRoute = '/dashboard';
+        }
+
+        console.log('🎯 Navigating to:', targetRoute);
+
+        this.router.navigate([targetRoute]).then(
+            (success) => {
+                console.log('✅ Navigation success:', success);
+                console.log('🏠 Current URL:', this.router.url);
+            },
+            (error) => {
+                console.error('❌ Navigation error:', error);
+                // Fallback to dashboard if specific route fails
+                this.router.navigate(['/dashboard']);
+            }
+        );
+    }
+
+
 
     private markFormGroupTouched(): void {
         Object.keys(this.loginForm.controls).forEach(key => {

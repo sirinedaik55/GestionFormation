@@ -1,0 +1,120 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <div>
+                <h5>{{ 'dashboard.admin' | translate }}</h5>
+                <p>{{ 'dashboard.welcome.admin' | translate }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">{{ 'stats.trainings' | translate }}</span>
+                    <div class="text-900 font-medium text-xl">{{ dashboardStats.totalFormations }}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
+                    <i class="pi pi-book text-blue-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">{{ dashboardStats.upcomingFormations }} {{ 'stats.upcoming' | translate }}</span>
+            <span class="text-500"> {{ 'stats.thisWeek' | translate }}</span>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">{{ 'stats.employees' | translate }}</span>
+                    <div class="text-900 font-medium text-xl">{{ dashboardStats.totalEmployees }}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2.5rem;height:2.5rem">
+                    <i class="pi pi-users text-orange-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">{{ dashboardStats.globalAttendanceRate }}%</span>
+            <span class="text-500"> {{ 'stats.attendanceRate' | translate }}</span>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Teams</span>
+                    <div class="text-900 font-medium text-xl">{{ dashboardStats.totalTeams }}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" style="width:2.5rem;height:2.5rem">
+                    <i class="pi pi-sitemap text-cyan-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">Active</span>
+            <span class="text-500"> all specialties</span>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Trainers</span>
+                    <div class="text-900 font-medium text-xl">{{ dashboardStats.totalTrainers }}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:2.5rem;height:2.5rem">
+                    <i class="pi pi-user-edit text-purple-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">Available</span>
+            <span class="text-500"> for trainings</span>
+        </div>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <h5>Quick Actions</h5>
+            <div class="grid">
+                <div class="col-6">
+                    <button pButton pRipple type="button"
+                            label="New Training"
+                            icon="pi pi-plus"
+                            class="p-button-success w-full mb-3"
+                            (click)="navigateToNewFormation()"></button>
+                </div>
+                <div class="col-6">
+                    <button pButton pRipple type="button"
+                            label="Manage Users"
+                            icon="pi pi-users"
+                            class="p-button-info w-full mb-3"
+                            (click)="navigateToManageUsers()"></button>
+                </div>
+                <div class="col-6">
+                    <button pButton pRipple type="button"
+                            label="Statistics"
+                            icon="pi pi-chart-bar"
+                            class="p-button-warning w-full mb-3"
+                            (click)="navigateToStatistics()"></button>
+                </div>
+                <div class="col-6">
+                    <button pButton pRipple type="button"
+                            label="Manage Teams"
+                            icon="pi pi-sitemap"
+                            class="p-button-secondary w-full mb-3"
+                            (click)="navigateToManageTeams()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-5">
+                <h5>Trainings per Month</h5>
+            </div>
+            <p-chart type="line" [data]="chartData" [options]="chartOptions"></p-chart>
+        </div>
+    </div>
+</div>

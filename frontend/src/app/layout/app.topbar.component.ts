@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 import { LayoutService } from "./service/app.layout.service";
 import { SimpleAuthService, SimpleUser } from '../services/simple-auth.service';
 
@@ -16,7 +17,8 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
     constructor(
         public layoutService: LayoutService,
-        private authService: SimpleAuthService
+        private authService: SimpleAuthService,
+        private router: Router
     ) { }
 
     ngOnInit(): void {
@@ -40,12 +42,18 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
                         {
                             label: 'Profile',
                             icon: 'pi pi-user-edit',
-                            command: () => this.goToProfile()
+                            command: (event) => {
+                                console.log('🔧 Profile clicked');
+                                this.goToProfile();
+                            }
                         },
                         {
                             label: 'Settings',
                             icon: 'pi pi-cog',
-                            command: () => this.goToSettings()
+                            command: (event) => {
+                                console.log('🔧 Settings clicked');
+                                this.goToSettings();
+                            }
                         },
                         {
                             separator: true
@@ -53,7 +61,10 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
                         {
                             label: 'Logout',
                             icon: 'pi pi-sign-out',
-                            command: () => this.logout()
+                            command: (event) => {
+                                console.log('🔧 Logout clicked');
+                                this.logout();
+                            }
                         }
                     ]
                 }
@@ -62,13 +73,50 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     }
 
     private goToProfile(): void {
-        // TODO: Navigate to profile page
-        console.log('Navigate to profile');
+        console.log('🔧 goToProfile called');
+        if (this.currentUser) {
+            const role = this.currentUser.role;
+            console.log('🔧 Current user role for profile:', role);
+
+            if (role === 'admin') {
+                console.log('🔧 Navigating to admin profile');
+                this.router.navigate(['/dashboard/uikit/profile']);
+            } else if (role === 'formateur') {
+                console.log('🔧 Navigating to trainer profile');
+                this.router.navigate(['/dashboard/trainer/profile']);
+            } else if (role === 'employe') {
+                console.log('🔧 Navigating to employee profile');
+                this.router.navigate(['/dashboard/employee/profile']);
+            } else {
+                console.log('🔧 Navigating to default profile');
+                this.router.navigate(['/dashboard/uikit/profile']);
+            }
+        } else {
+            console.log('🔧 No current user found for profile');
+        }
     }
 
     private goToSettings(): void {
-        // TODO: Navigate to settings page
-        console.log('Navigate to settings');
+        console.log('🔧 goToSettings called');
+        if (this.currentUser) {
+            const role = this.currentUser.role;
+            console.log('🔧 Current user role:', role);
+            if (role === 'admin') {
+                console.log('🔧 Navigating to admin settings');
+                this.router.navigate(['/dashboard/uikit/settings']);
+            } else if (role === 'formateur') {
+                console.log('🔧 Navigating to trainer settings');
+                this.router.navigate(['/dashboard/trainer/settings']);
+            } else if (role === 'employe') {
+                console.log('🔧 Navigating to employee settings');
+                this.router.navigate(['/dashboard/employee/settings']);
+            } else {
+                console.log('🔧 Navigating to default settings');
+                this.router.navigate(['/dashboard/uikit/settings']);
+            }
+        } else {
+            console.log('🔧 No current user found');
+        }
     }
 
     logout(): void {

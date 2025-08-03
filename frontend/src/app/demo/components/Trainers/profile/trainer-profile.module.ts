@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -27,6 +28,7 @@ import { TrainerProfileComponent } from './trainer-profile.component';
     imports: [
         CommonModule,
         FormsModule,
+        HttpClientModule,
         TrainerProfileRoutingModule,
         
         // PrimeNG Modules

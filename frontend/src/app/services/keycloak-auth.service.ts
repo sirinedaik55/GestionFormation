@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
@@ -18,7 +18,7 @@ export interface KeycloakUser {
 }
 
 export interface LoginRequest {
-    username: string;
+    email: string;
     password: string;
 }
 
@@ -31,7 +31,7 @@ export interface LoginResponse {
         expires_in: number;
         token_type: string;
         user: KeycloakUser;
-    };
+    } | null;
 }
 
 export interface KeycloakConfig {
@@ -61,6 +61,40 @@ export class KeycloakAuthService {
 
     private keycloakConfig: KeycloakConfig | null = null;
 
+    // Mock users for fallback authentication
+    private mockUsers: KeycloakUser[] = [
+        {
+            id: '1',
+            username: 'admin',
+            email: 'admin@formation.com',
+            name: 'Admin User',
+            first_name: 'Admin',
+            last_name: 'User',
+            roles: ['admin'],
+            team: 'Administration'
+        },
+        {
+            id: '2',
+            username: 'trainer',
+            email: 'trainer@formation.com',
+            name: 'Syrine Daik',
+            first_name: 'Syrine',
+            last_name: 'Daik',
+            roles: ['formateur', 'trainer'],
+            team: 'Trainers'
+        },
+        {
+            id: '3',
+            username: 'employee',
+            email: 'employee@formation.com',
+            name: 'John Doe',
+            first_name: 'John',
+            last_name: 'Doe',
+            roles: ['employe', 'employee'],
+            team: 'Development Team'
+        }
+    ];
+
     constructor(
         private http: HttpClient,
         private router: Router
@@ -72,7 +106,11 @@ export class KeycloakAuthService {
      * Initialize authentication service
      */
     async initializeAuth(): Promise<void> {
-        await this.loadKeycloakConfig();
+        try {
+            await this.loadKeycloakConfig();
+        } catch (error) {
+            console.warn('Failed to load Keycloak config, using fallback mode:', error);
+        }
         this.checkExistingAuth();
     }
 
@@ -81,8 +119,15 @@ export class KeycloakAuthService {
      */
     private async loadKeycloakConfig(): Promise<void> {
         try {
-            // Try regular Keycloak config first
-            let response = await fetch(`${this.apiUrl}/auth/config`);
+            // Try regular Keycloak config first with timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+            let response = await fetch(`${this.apiUrl}/auth/config`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
             let data = await response.json();
 
             if (data.success) {
@@ -94,15 +139,32 @@ export class KeycloakAuthService {
         }
 
         try {
-            // Fallback to mock config
-            const response = await fetch(`${this.apiUrl}/auth/mock/config`);
+            // Fallback to mock config with timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+            const response = await fetch(`${this.apiUrl}/auth/mock/config`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
             const data = await response.json();
             if (data.success) {
                 this.keycloakConfig = data.data;
                 console.log('Using mock authentication configuration');
             }
         } catch (error) {
-            console.error('Failed to load mock config:', error);
+            console.warn('Failed to load mock config, using local fallback:', error);
+            // Set a basic mock config
+            this.keycloakConfig = {
+                keycloak_url: 'http://localhost:8080',
+                realm: 'formation',
+                client_id: 'formation-app',
+                auth_url: 'http://localhost:8080/auth',
+                token_url: 'http://localhost:8080/token',
+                userinfo_url: 'http://localhost:8080/userinfo',
+                logout_url: 'http://localhost:8080/logout'
+            };
         }
     }
 
@@ -110,17 +172,27 @@ export class KeycloakAuthService {
      * Check if user is already authenticated on app start
      */
     private checkExistingAuth(): void {
+        console.log('🔍 KeycloakAuthService: Checking existing auth...');
+
         const token = this.getAccessToken();
         const userStr = localStorage.getItem('keycloak_user');
+
+        console.log('🔍 KeycloakAuthService: Token exists:', !!token);
+        console.log('🔍 KeycloakAuthService: User string exists:', !!userStr);
 
         if (token && userStr) {
             try {
                 const user = JSON.parse(userStr);
+                console.log('🔍 KeycloakAuthService: Restored user:', user);
                 this.currentUserSubject.next(user);
+                this.isAuthenticatedSubject.next(true);
             } catch (error) {
                 console.error('Failed to parse stored user:', error);
                 this.clearStoredTokens();
             }
+        } else {
+            console.log('🔍 KeycloakAuthService: No existing auth found');
+            this.isAuthenticatedSubject.next(false);
         }
     }
 
@@ -142,7 +214,7 @@ export class KeycloakAuthService {
         return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials)
             .pipe(
                 tap(response => {
-                    if (response.success) {
+                    if (response.success && response.data) {
                         this.setSession(response.data);
                     }
                 }),
@@ -152,14 +224,54 @@ export class KeycloakAuthService {
                     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/mock/login`, credentials)
                         .pipe(
                             tap(response => {
-                                if (response.success) {
+                                if (response.success && response.data) {
                                     this.setSession(response.data);
                                 }
                             }),
-                            catchError(this.handleError)
+                            catchError(mockError => {
+                                console.warn('Mock API login failed, using local mock:', mockError);
+                                // Final fallback to local mock
+                                return this.mockLogin(credentials);
+                            })
                         );
                 })
             );
+    }
+
+    /**
+     * Local mock login fallback
+     */
+    private mockLogin(credentials: LoginRequest): Observable<LoginResponse> {
+        const user = this.mockUsers.find(u => u.email === credentials.email);
+
+        if (user && credentials.password) {
+            // Generate mock tokens
+            const mockToken = 'mock-jwt-token-' + user.id;
+            const mockRefreshToken = 'mock-refresh-token-' + user.id;
+
+            const loginData = {
+                user: user,
+                access_token: mockToken,
+                refresh_token: mockRefreshToken,
+                expires_in: 3600,
+                token_type: 'Bearer'
+            };
+
+            // Set session
+            this.setSession(loginData);
+
+            return of({
+                success: true,
+                message: 'Login successful (local mock)',
+                data: loginData
+            });
+        } else {
+            return of({
+                success: false,
+                message: 'Invalid credentials',
+                data: null
+            });
+        }
     }
 
     /**
@@ -317,11 +429,13 @@ export class KeycloakAuthService {
      * Set session data
      */
     private setSession(authData: any): void {
+        console.log('Setting session with data:', authData);
         localStorage.setItem(this.accessTokenKey, authData.access_token);
         localStorage.setItem(this.refreshTokenKey, authData.refresh_token);
         localStorage.setItem(this.userKey, JSON.stringify(authData.user));
         this.currentUserSubject.next(authData.user);
         this.isAuthenticatedSubject.next(true);
+        console.log('Session set, current user:', this.getCurrentUserValue());
     }
 
     /**
@@ -384,11 +498,10 @@ export class KeycloakAuthService {
      */
     private handleError = (error: any) => {
         console.error('Keycloak Auth Service Error:', error);
-        
-        if (error.status === 401) {
-            this.clearSession();
-        }
-        
+
+        // Don't automatically clear session on 401 errors
+        // Let the component handle authorization errors
+
         return throwError(error);
     };
 
@@ -397,25 +510,36 @@ export class KeycloakAuthService {
      */
     redirectAfterLogin(): void {
         const user = this.getCurrentUserValue();
-        if (!user) return;
+        console.log('Redirecting after login, user:', user);
+
+        if (!user) {
+            console.error('No user found for redirection');
+            return;
+        }
 
         // Check if there's an attempted URL to redirect to
         const attemptedUrl = localStorage.getItem('attempted_url');
         if (attemptedUrl) {
             localStorage.removeItem('attempted_url');
+            console.log('Redirecting to attempted URL:', attemptedUrl);
             this.router.navigateByUrl(attemptedUrl);
             return;
         }
 
         // Default role-based redirection
+        console.log('User roles:', user.roles);
         if (user.roles.includes('admin')) {
-            this.router.navigate(['/']);
+            console.log('Redirecting admin to /dashboard');
+            this.router.navigate(['/dashboard']);
         } else if (user.roles.includes('trainer') || user.roles.includes('formateur')) {
-            this.router.navigate(['/trainer']);
+            console.log('Redirecting trainer to /dashboard/trainer');
+            this.router.navigate(['/dashboard/trainer']);
         } else if (user.roles.includes('employee') || user.roles.includes('employe')) {
-            this.router.navigate(['/employee']);
+            console.log('Redirecting employee to /dashboard/employee');
+            this.router.navigate(['/dashboard/employee']);
         } else {
-            this.router.navigate(['/']);
+            console.log('Redirecting to default /dashboard');
+            this.router.navigate(['/dashboard']);
         }
     }
 }

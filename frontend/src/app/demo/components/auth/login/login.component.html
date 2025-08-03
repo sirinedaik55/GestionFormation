@@ -1,44 +1,53 @@
 <div class="surface-0 flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <!-- Language Selector in top right corner -->
+    <div class="absolute top-0 right-0 p-4">
+        <app-language-selector></app-language-selector>
+    </div>
+
     <div class="grid justify-content-center p-2 lg:p-0" style="min-width:80%">
-        <div class="col-12 mt-5 xl:mt-0 text-center">
-            <img src="assets/layout/images/{{layoutService.config.colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="Formation logo" class="mb-5" style="width:81px; height:60px;">
-        </div>
+
         <div class="col-12 xl:col-6" style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%);">
             <div class="h-full w-full m-0 py-7 px-4" style="border-radius:53px; background: linear-gradient(180deg, var(--surface-50) 38.9%, var(--surface-0));">
-                <div class="text-center mb-5">
-                    <i class="pi pi-shield text-6xl text-primary mb-3"></i>
-                    <div class="text-900 text-3xl font-medium mb-3">Formation Management</div>
-                    <span class="text-600 font-medium">Sign in with Keycloak</span>
+                <div class="text-center mb-4">
+                    <div class="text-900 text-2xl font-medium mb-2">{{ 'auth.welcome' | translate }}</div>
+                    <span class="text-600">{{ 'auth.signin' | translate }} to continue</span>
                 </div>
 
                 <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-full md:w-10 mx-auto">
                     <!-- Demo Credentials Buttons -->
                     <div class="mb-4">
                         <div class="text-center mb-3">
-                            <span class="text-600 text-sm">Quick Login (Demo):</span>
+                            <span class="text-600 text-sm">{{ 'auth.quickLogin' | translate }}:</span>
                         </div>
                         <div class="flex gap-2 justify-content-center flex-wrap">
                             <p-button
-                                label="Admin"
+                                [label]="'role.admin' | translate"
                                 icon="pi pi-user-plus"
                                 class="p-button-sm p-button-outlined p-button-danger"
                                 (click)="fillDemoCredentials('admin')"
                                 type="button">
                             </p-button>
                             <p-button
-                                label="Trainer"
+                                [label]="'role.trainer' | translate"
                                 icon="pi pi-graduation-cap"
                                 class="p-button-sm p-button-outlined p-button-info"
                                 (click)="fillDemoCredentials('trainer')"
                                 type="button">
                             </p-button>
                             <p-button
-                                label="Employee"
+                                [label]="'role.employee' | translate"
                                 icon="pi pi-users"
                                 class="p-button-sm p-button-outlined p-button-success"
                                 (click)="fillDemoCredentials('employee')"
                                 type="button">
                             </p-button>
+                        </div>
+
+                        <!-- Demo Note -->
+                        <div class="text-center mt-3">
+                            <p class="text-xs text-500">
+                                💡 Demo: Use <strong>admin@formation.com / admin123</strong> to access admin panel and create users
+                            </p>
                         </div>
                     </div>
 
@@ -46,11 +55,11 @@
 
                     <!-- Email Field -->
                     <div class="field mb-4">
-                        <label for="email" class="block text-900 text-xl font-medium mb-2">Email</label>
+                        <label for="email" class="block text-900 text-xl font-medium mb-2">{{ 'auth.email' | translate }}</label>
                         <input
                             id="email"
                             type="email"
-                            placeholder="Enter email"
+                            [placeholder]="'auth.email' | translate"
                             pInputText
                             formControlName="email"
                             class="w-full"
@@ -65,11 +74,11 @@
 
                     <!-- Password Field -->
                     <div class="field mb-4">
-                        <label for="password" class="block text-900 font-medium text-xl mb-2">Password</label>
+                        <label for="password" class="block text-900 font-medium text-xl mb-2">{{ 'auth.password' | translate }}</label>
                         <p-password
                             id="password"
                             formControlName="password"
-                            placeholder="Enter password"
+                            [placeholder]="'auth.password' | translate"
                             [toggleMask]="true"
                             styleClass="w-full"
                             [class.p-invalid]="isFieldInvalid('password')"
@@ -84,7 +93,7 @@
 
                     <!-- Submit Button -->
                     <p-button
-                        label="Sign In"
+                        [label]="'auth.signin' | translate"
                         icon="pi pi-sign-in"
                         class="w-full p-3 text-xl"
                         type="submit"
@@ -93,12 +102,7 @@
                     </p-button>
                 </form>
 
-                <!-- Additional Info -->
-                <div class="text-center mt-4">
-                    <small class="text-500">
-                        Powered by Keycloak Authentication
-                    </small>
-                </div>
+
             </div>
         </div>
     </div>

@@ -26,6 +26,11 @@ const routes: Routes = [
         path: 'details/:id',
         component: TrainerFormationDetailsComponent,
         data: { breadcrumb: 'Formation Details' }
+    },
+    {
+        path: 'participants/:id',
+        component: TrainerFormationDetailsComponent, // Réutilise le même composant pour l'instant
+        data: { breadcrumb: 'Manage Participants' }
     }
 ];
 

@@ -93,6 +93,88 @@ class FormationSeeder extends Seeder
                 'formateur_id' => 2,
                 'team_id' => 5, // QA Team
                 'status' => 'scheduled'
+            ],
+            // Add more formations with different trainers
+            [
+                'name' => 'Data Science with Python',
+                'description' => 'Introduction to data analysis and machine learning using Python.',
+                'date' => Carbon::now()->subDays(25)->format('Y-m-d H:i:s'),
+                'duree' => 8,
+                'room' => 'Room H',
+                'formateur_id' => 3, // Marie Martin
+                'team_id' => 1,
+                'status' => 'completed'
+            ],
+            [
+                'name' => 'Project Management Essentials',
+                'description' => 'Learn project management methodologies and best practices.',
+                'date' => Carbon::now()->subDays(18)->format('Y-m-d H:i:s'),
+                'duree' => 6,
+                'room' => 'Room I',
+                'formateur_id' => 4, // Pierre Durand
+                'team_id' => 2,
+                'status' => 'completed'
+            ],
+            [
+                'name' => 'Digital Marketing Strategy',
+                'description' => 'Comprehensive guide to digital marketing and social media strategies.',
+                'date' => Carbon::now()->subDays(12)->format('Y-m-d H:i:s'),
+                'duree' => 5,
+                'room' => 'Room J',
+                'formateur_id' => 5, // Sophie Leclerc
+                'team_id' => 3,
+                'status' => 'completed'
+            ],
+            [
+                'name' => 'Advanced Cybersecurity',
+                'description' => 'Advanced cybersecurity techniques and threat analysis.',
+                'date' => Carbon::now()->addDays(8)->format('Y-m-d H:i:s'),
+                'duree' => 7,
+                'room' => 'Room K',
+                'formateur_id' => 6, // Thomas Bernard
+                'team_id' => 3,
+                'status' => 'scheduled'
+            ],
+            [
+                'name' => 'UX Research Methods',
+                'description' => 'Learn user research methodologies and usability testing.',
+                'date' => Carbon::now()->addDays(12)->format('Y-m-d H:i:s'),
+                'duree' => 4,
+                'room' => 'Room L',
+                'formateur_id' => 7, // Camille Rousseau
+                'team_id' => 2,
+                'status' => 'scheduled'
+            ],
+            [
+                'name' => 'Cloud Computing with AWS',
+                'description' => 'Introduction to cloud computing and AWS services.',
+                'date' => Carbon::now()->addDays(18)->format('Y-m-d H:i:s'),
+                'duree' => 6,
+                'room' => 'Room M',
+                'formateur_id' => 8, // Lucas Moreau
+                'team_id' => 4,
+                'status' => 'scheduled'
+            ],
+            [
+                'name' => 'Business Analysis Techniques',
+                'description' => 'Learn business analysis methodologies and documentation techniques.',
+                'date' => Carbon::now()->addDays(25)->format('Y-m-d H:i:s'),
+                'duree' => 5,
+                'room' => 'Room N',
+                'formateur_id' => 9, // Emma Leroy
+                'team_id' => 5,
+                'status' => 'scheduled'
+            ],
+            // One cancelled formation
+            [
+                'name' => 'Blockchain Development',
+                'description' => 'Introduction to blockchain technology and smart contracts.',
+                'date' => Carbon::now()->addDays(30)->format('Y-m-d H:i:s'),
+                'duree' => 8,
+                'room' => 'Room O',
+                'formateur_id' => 3,
+                'team_id' => 1,
+                'status' => 'cancelled'
             ]
         ];
 

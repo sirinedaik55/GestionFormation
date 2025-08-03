@@ -128,13 +128,15 @@ import { TrainerFormation } from '../../../../../services/trainer.service';
                                         <p-button
                                             icon="pi pi-eye"
                                             class="p-button-rounded p-button-text p-button-sm"
-                                            pTooltip="View Details">
+                                            pTooltip="View Details"
+                                            (click)="viewFormationDetails(formation)">
                                         </p-button>
                                         <p-button
                                             icon="pi pi-check-square"
                                             class="p-button-rounded p-button-text p-button-sm"
                                             pTooltip="Take Attendance"
-                                            [disabled]="formation.status !== 'upcoming' && formation.status !== 'ongoing'">
+                                            [disabled]="formation.status !== 'upcoming' && formation.status !== 'ongoing'"
+                                            (click)="takeAttendance(formation)">
                                         </p-button>
                                     </div>
                                 </div>
@@ -253,11 +255,21 @@ export class TrainerFormationCalendarComponent implements OnInit {
     }
 
     navigateToList() {
-        this.router.navigate(['/trainer/formations/list']);
+        this.router.navigate(['/dashboard/trainer/formations']);
     }
 
     viewFormationDetails(formation: TrainerFormation) {
-        this.router.navigate(['/trainer/formations/details', formation.id]);
+        this.router.navigate(['/dashboard/trainer/formations/details', formation.id]);
+    }
+
+    takeAttendance(formation: TrainerFormation) {
+        console.log('Taking attendance for formation:', formation.name);
+        this.router.navigate(['/dashboard/trainer/attendance'], {
+            queryParams: {
+                formationId: formation.id,
+                formationName: formation.name
+            }
+        });
     }
 
     formatDate(date: string): string {

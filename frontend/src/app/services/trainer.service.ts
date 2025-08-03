@@ -244,17 +244,175 @@ export class TrainerService {
   }
 
   private getMockFormationDetails(formationId: number): Observable<any> {
-    return of({
-      id: formationId,
-      name: 'Angular Advanced Concepts',
-      description: 'Deep dive into Angular advanced features',
-      date: '2024-07-15T10:00:00',
-      duree: 6,
-      room: 'Room A',
-      participants: [
-        { id: 1, name: 'Ahmed Ben Ali', email: 'ahmed@company.com', attendance: 'present' },
-        { id: 2, name: 'Fatima Zahra', email: 'fatima@company.com', attendance: 'present' }
-      ]
-    });
+    // Generate different formation details based on ID
+    const formations = [
+      {
+        id: 1,
+        name: 'Angular Advanced Concepts',
+        description: 'Deep dive into Angular advanced features',
+        date: '2024-07-15T10:00:00',
+        duree: 6,
+        room: 'Room A',
+        participants: [
+          {
+            id: 1,
+            user_id: 101,
+            user: {
+              id: 101,
+              first_name: 'Ahmed',
+              last_name: 'Ben Ali',
+              email: 'ahmed@company.com',
+              team: { name: 'Frontend' }
+            }
+          },
+          {
+            id: 2,
+            user_id: 102,
+            user: {
+              id: 102,
+              first_name: 'Fatima',
+              last_name: 'Zahra',
+              email: 'fatima@company.com',
+              team: { name: 'Frontend' }
+            }
+          },
+          {
+            id: 3,
+            user_id: 103,
+            user: {
+              id: 103,
+              first_name: 'Mohamed',
+              last_name: 'Salah',
+              email: 'mohamed@company.com',
+              team: { name: 'Frontend' }
+            }
+          },
+          {
+            id: 4,
+            user_id: 104,
+            user: {
+              id: 104,
+              first_name: 'Aisha',
+              last_name: 'Mansouri',
+              email: 'aisha@company.com',
+              team: { name: 'Frontend' }
+            }
+          },
+          {
+            id: 5,
+            user_id: 105,
+            user: {
+              id: 105,
+              first_name: 'Youssef',
+              last_name: 'Alami',
+              email: 'youssef@company.com',
+              team: { name: 'Frontend' }
+            }
+          }
+        ]
+      },
+      {
+        id: 2,
+        name: 'TypeScript Best Practices',
+        description: 'Learn TypeScript best practices',
+        date: '2024-07-20T14:00:00',
+        duree: 4,
+        room: 'Room B',
+        participants: [
+          {
+            id: 6,
+            user_id: 106,
+            user: {
+              id: 106,
+              first_name: 'Laila',
+              last_name: 'Benali',
+              email: 'laila@company.com',
+              team: { name: 'Backend' }
+            }
+          },
+          {
+            id: 7,
+            user_id: 107,
+            user: {
+              id: 107,
+              first_name: 'Omar',
+              last_name: 'Tazi',
+              email: 'omar@company.com',
+              team: { name: 'Backend' }
+            }
+          },
+          {
+            id: 8,
+            user_id: 108,
+            user: {
+              id: 108,
+              first_name: 'Nadia',
+              last_name: 'Chraibi',
+              email: 'nadia@company.com',
+              team: { name: 'Backend' }
+            }
+          }
+        ]
+      },
+      {
+        id: 3,
+        name: 'React Fundamentals',
+        description: 'Introduction to React components',
+        date: '2024-07-25T09:00:00',
+        duree: 8,
+        room: 'Room C',
+        participants: [
+          {
+            id: 9,
+            user_id: 109,
+            user: {
+              id: 109,
+              first_name: 'Karim',
+              last_name: 'Fassi',
+              email: 'karim@company.com',
+              team: { name: 'Frontend' }
+            }
+          },
+          {
+            id: 10,
+            user_id: 110,
+            user: {
+              id: 110,
+              first_name: 'Samira',
+              last_name: 'Idrissi',
+              email: 'samira@company.com',
+              team: { name: 'Frontend' }
+            }
+          },
+          {
+            id: 11,
+            user_id: 111,
+            user: {
+              id: 111,
+              first_name: 'Hassan',
+              last_name: 'Berrada',
+              email: 'hassan@company.com',
+              team: { name: 'Frontend' }
+            }
+          },
+          {
+            id: 12,
+            user_id: 112,
+            user: {
+              id: 112,
+              first_name: 'Zineb',
+              last_name: 'Alaoui',
+              email: 'zineb@company.com',
+              team: { name: 'Frontend' }
+            }
+          }
+        ]
+      }
+    ];
+
+    // Find formation by ID or return first one as default
+    const formation = formations.find(f => f.id === formationId) || formations[0];
+
+    return of(formation);
   }
 }

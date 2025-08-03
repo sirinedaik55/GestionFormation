@@ -357,12 +357,29 @@ export class EmployeeProfileComponent implements OnInit {
     }
 
     onPhotoSelect(event: any) {
-        const file = event.files[0];
-        if (file) {
+        console.log('📁 Photo select event:', event);
+        console.log('📁 Event files:', event.files);
+        console.log('📁 Current files:', event.currentFiles);
+
+        // PrimeNG FileUpload peut retourner les fichiers dans event.files ou event.currentFiles
+        const files = event.files || event.currentFiles || [];
+
+        // Assurer que c'est un tableau et prendre le premier fichier
+        if (Array.isArray(files) && files.length > 0) {
+            const file = files[0];
+            console.log('✅ Selected photo:', file.name);
             this.messageService.add({
                 severity: 'info',
                 summary: 'Photo Upload',
                 detail: `Photo ${file.name} selected. This feature will be implemented soon.`,
+                life: 3000
+            });
+        } else {
+            console.log('❌ No photo selected or invalid format');
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Please select a valid image file',
                 life: 3000
             });
         }

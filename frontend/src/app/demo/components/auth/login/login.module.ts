@@ -9,6 +9,7 @@ import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { DividerModule } from 'primeng/divider';
+import { SharedModule } from '../../../../shared/shared.module';
 
 @NgModule({
     imports: [
@@ -21,7 +22,8 @@ import { DividerModule } from 'primeng/divider';
         InputTextModule,
         PasswordModule,
         ToastModule,
-        DividerModule
+        DividerModule,
+        SharedModule
     ],
     declarations: [LoginComponent]
 })

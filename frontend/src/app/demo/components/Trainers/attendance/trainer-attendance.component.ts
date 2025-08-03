@@ -46,15 +46,22 @@ export class TrainerAttendanceComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
+        console.log('🚀 TrainerAttendanceComponent ngOnInit');
         await this.loadAvailableFormations();
-        
+
         // Check if a formation ID was passed as query parameter
         const formationId = this.route.snapshot.queryParams['formationId'];
+        const formationName = this.route.snapshot.queryParams['formationName'];
+        console.log('📋 Query params - formationId:', formationId, 'formationName:', formationName);
+
         if (formationId) {
             const formation = this.availableFormations.find(f => f.id === parseInt(formationId));
+            console.log('🔍 Found formation:', formation);
             if (formation) {
                 this.selectedFormation = formation;
                 await this.loadParticipants();
+            } else {
+                console.log('❌ Formation not found in available formations');
             }
         }
     }
@@ -62,14 +69,16 @@ export class TrainerAttendanceComponent implements OnInit {
     async loadAvailableFormations() {
         try {
             this.loading = true;
-            
-            // Load formations that can have attendance taken (upcoming or ongoing)
-            const formations = await lastValueFrom(this.trainerService.getUpcomingFormations());
+            console.log('🔄 Loading available formations for attendance...');
+
+            // Load ALL formations (not just upcoming) so we can take attendance for any formation
+            const formations = await lastValueFrom(this.trainerService.getMyFormations());
             this.availableFormations = formations;
-            
+            console.log('✅ Loaded formations:', formations.length);
+
             this.loading = false;
         } catch (error) {
-            console.error('Error loading formations:', error);
+            console.error('❌ Error loading formations:', error);
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
@@ -89,25 +98,31 @@ export class TrainerAttendanceComponent implements OnInit {
     }
 
     async loadParticipants() {
-        if (!this.selectedFormation) return;
+        if (!this.selectedFormation) {
+            console.log('❌ No selected formation');
+            return;
+        }
 
         try {
             this.loadingParticipants = true;
-            
+            console.log('🔄 Loading participants for formation:', this.selectedFormation.name);
+
             // Load participants for the selected formation
             const formationDetails = await lastValueFrom(this.trainerService.getFormationDetails(this.selectedFormation.id));
             const participants = formationDetails.participants || [];
-            
+            console.log('👥 Loaded participants:', participants.length);
+
             // Initialize attendance records
             this.attendanceRecords = participants.map((participant: any) => ({
                 participant,
                 attendance: 'pending' as const,
                 notes: ''
             }));
-            
+
+            console.log('✅ Attendance records initialized:', this.attendanceRecords.length);
             this.loadingParticipants = false;
         } catch (error) {
-            console.error('Error loading participants:', error);
+            console.error('❌ Error loading participants:', error);
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
@@ -313,19 +328,24 @@ export class TrainerAttendanceComponent implements OnInit {
 
         try {
             this.submitting = true;
-            
+            console.log('📤 Submitting attendance for formation:', this.selectedFormation.name);
+
             // Prepare attendance data
             const attendanceData = this.attendanceRecords.map(record => ({
                 user_id: record.participant.user_id,
                 attendance: record.attendance,
                 notes: record.notes
             }));
+            console.log('📋 Attendance data:', attendanceData);
 
             // Submit attendance via API
             try {
-                await lastValueFrom(this.trainerService.submitAttendance(this.selectedFormation.id, attendanceData));
+                // Format data as expected by backend
+                const payload = { attendance: attendanceData };
+                await lastValueFrom(this.trainerService.submitAttendance(this.selectedFormation.id, payload));
+                console.log('✅ API submission successful');
             } catch (error) {
-                console.warn('API submission failed, using mock response:', error);
+                console.warn('⚠️ API submission failed, using mock response:', error);
                 // Simulate API call as fallback
                 await new Promise(resolve => setTimeout(resolve, 1500));
             }
@@ -336,9 +356,9 @@ export class TrainerAttendanceComponent implements OnInit {
                 detail: 'Attendance submitted successfully',
                 life: 3000
             });
-            
+
             // Navigate back to formations or dashboard
-            this.router.navigate(['/trainer/formations']);
+            this.router.navigate(['/dashboard/trainer/formations']);
             
         } catch (error) {
             console.error('Error submitting attendance:', error);

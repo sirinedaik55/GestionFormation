@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../../../services/auth.service';
+import { SimpleAuthService } from '../../../../services/simple-auth.service';
 import { StatisticsService } from '../../../../services/statistics.service';
 import { MessageService } from 'primeng/api';
 import { lastValueFrom } from 'rxjs';
@@ -24,7 +24,7 @@ export class ProfileComponent implements OnInit {
     };
 
     constructor(
-        private authService: AuthService,
+        private authService: SimpleAuthService,
         private statisticsService: StatisticsService,
         private messageService: MessageService
     ) {}

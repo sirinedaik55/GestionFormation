@@ -49,9 +49,16 @@ export class TrainerReportsComponent implements OnInit {
 
         // Check if we should open create dialog automatically
         this.route.queryParams.subscribe(params => {
+            console.log('🔍 Reports component - Query params:', params);
             if (params['action'] === 'create') {
-                console.log('Auto-opening create report dialog from dashboard');
+                console.log('✅ Auto-opening create report dialog from formation details');
+                // Pre-fill formation if provided
+                if (params['formationName']) {
+                    console.log('📝 Pre-filling formation:', params['formationName']);
+                    this.selectedFormation = params['formationName'];
+                }
                 setTimeout(() => {
+                    console.log('🚀 Calling showCreateDialog...');
                     this.showCreateDialog();
                 }, 500); // Small delay to ensure component is fully loaded
             }
@@ -90,8 +97,10 @@ export class TrainerReportsComponent implements OnInit {
     }
 
     showCreateDialog() {
-        console.log('showCreateDialog called - opening dialog');
+        console.log('🎯 showCreateDialog called - opening dialog');
+        console.log('📊 reportDialog before:', this.reportDialog);
         this.reportDialog = true;
+        console.log('📊 reportDialog after:', this.reportDialog);
         this.resetForm();
     }
 

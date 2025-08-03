@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API Backend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Test API Backend</h1>
+    
+    <div>
+        <h2>1. Test Login</h2>
+        <button onclick="testLogin()">Test Login (admin@formation.com)</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div>
+        <h2>2. Test Dashboard Stats</h2>
+        <button onclick="testDashboard()">Test Dashboard Stats</button>
+        <div id="dashboardResult"></div>
+    </div>
+
+    <script>
+        let authToken = null;
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            try {
+                const response = await fetch('http://localhost:8000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@formation.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    authToken = data.data.token;
+                    resultDiv.innerHTML = `<div class="result success">✅ Login Success</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">❌ Login Failed: ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Login Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testDashboard() {
+            const resultDiv = document.getElementById('dashboardResult');
+            if (!authToken) {
+                resultDiv.innerHTML = `<div class="result error">❌ Please login first</div>`;
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/statistics/dashboard', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="result success">✅ Dashboard Success: ${JSON.stringify(data)}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">❌ Dashboard Failed: ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Dashboard Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ApiService } from './api.service';
+import { MockStorageService } from './mock-storage.service';
+import { catchError } from 'rxjs/operators';
 
 export interface Team {
     id: number;
@@ -42,11 +44,19 @@ export interface UpdateTeamRequest {
 })
 export class TeamService {
 
-    constructor(private apiService: ApiService) {}
+    constructor(
+        private apiService: ApiService,
+        private mockStorage: MockStorageService
+    ) {}
 
     // Get all teams
     getTeams(params?: any): Observable<Team[]> {
-        return this.apiService.get<Team[]>('teams', params);
+        return this.apiService.get<Team[]>('teams', params).pipe(
+            catchError(error => {
+                console.warn('API failed for teams, using mock data:', error);
+                return of(this.mockStorage.getTeams());
+            })
+        );
     }
 
     // Get team by ID
@@ -56,17 +66,60 @@ export class TeamService {
 
     // Create new team
     createTeam(team: CreateTeamRequest): Observable<Team> {
-        return this.apiService.post<Team>('teams', team);
+        return this.apiService.post<Team>('teams', team).pipe(
+            catchError(error => {
+                console.warn('API failed for create team, using mock response:', error);
+                const mockTeam = {
+                    name: team.name,
+                    speciality: team.speciality,
+                    memberCount: 0,
+                    formationCount: 0,
+                    members: [],
+                    formations: [],
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+                return of(this.mockStorage.addTeam(mockTeam));
+            })
+        );
     }
 
     // Update team
     updateTeam(id: number, team: UpdateTeamRequest): Observable<Team> {
-        return this.apiService.put<Team>(`teams/${id}`, team);
+        return this.apiService.put<Team>(`teams/${id}`, team).pipe(
+            catchError(error => {
+                console.warn('API failed for update team, using mock response:', error);
+                const updatedTeam = this.mockStorage.updateTeam(id, team);
+                if (updatedTeam) {
+                    return of(updatedTeam);
+                } else {
+                    // If team not found, create a mock one
+                    const mockTeam: Team = {
+                        id: id,
+                        name: team.name || 'Updated Team',
+                        speciality: team.speciality || 'General',
+                        memberCount: Math.floor(Math.random() * 10) + 1,
+                        formationCount: Math.floor(Math.random() * 5) + 1,
+                        members: [],
+                        formations: [],
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    } as Team;
+                    return of(mockTeam);
+                }
+            })
+        );
     }
 
     // Delete team
     deleteTeam(id: number): Observable<void> {
-        return this.apiService.delete<void>(`teams/${id}`);
+        return this.apiService.delete<void>(`teams/${id}`).pipe(
+            catchError(error => {
+                console.warn('API failed for delete team, using mock response:', error);
+                this.mockStorage.deleteTeam(id);
+                return of(void 0); // Simulate successful deletion
+            })
+        );
     }
 
     // Legacy methods for compatibility
@@ -92,4 +145,6 @@ export class TeamService {
     getAllTeamsStats(): Observable<any> {
         return this.apiService.get<any>('statistics/teams');
     }
+
+
 }

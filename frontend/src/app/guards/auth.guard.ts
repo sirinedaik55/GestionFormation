@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, CanActivateChild, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { TokenService } from '../services/token.service';
+import { SimpleAuthService } from '../services/simple-auth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -8,7 +8,7 @@ import { TokenService } from '../services/token.service';
 export class AuthGuard implements CanActivate, CanActivateChild {
 
     constructor(
-        private tokenService: TokenService,
+        private authService: SimpleAuthService,
         private router: Router
     ) {}
 
@@ -27,9 +27,9 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     }
 
     private checkAuth(url: string): boolean {
-        const hasToken = this.tokenService.hasToken();
+        const isAuthenticated = this.authService.isAuthenticated();
 
-        if (hasToken) {
+        if (isAuthenticated) {
             return true;
         } else {
             // Store the attempted URL for redirecting after login

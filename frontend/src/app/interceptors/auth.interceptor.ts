@@ -59,7 +59,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
             const refreshToken = this.getRefreshToken();
             if (!refreshToken) {
-                this.clearTokensAndRedirect();
+                // Don't automatically redirect to login, just return the error
+                this.isRefreshing = false;
                 return throwError('No refresh token available');
             }
 
@@ -74,13 +75,13 @@ export class AuthInterceptor implements HttpInterceptor {
                         // Retry the original request with new token
                         return next.handle(this.addAuthHeader(req));
                     } else {
-                        this.clearTokensAndRedirect();
+                        // Don't automatically redirect, let the component handle it
                         return throwError('Token refresh failed');
                     }
                 }),
                 catchError((error) => {
                     this.isRefreshing = false;
-                    this.clearTokensAndRedirect();
+                    // Don't automatically redirect, let the component handle it
                     return throwError(error);
                 })
             );

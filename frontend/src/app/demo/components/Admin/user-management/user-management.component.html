@@ -1,0 +1,286 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-4">
+                <h2 class="text-900 font-semibold mb-0">User Management</h2>
+                <p-button 
+                    label="Add User" 
+                    icon="pi pi-plus" 
+                    class="p-button-success"
+                    (click)="openNew()">
+                </p-button>
+            </div>
+
+            <!-- Filters -->
+            <div class="grid mb-4">
+                <div class="col-12 md:col-3">
+                    <label class="block text-900 font-medium mb-2">Search</label>
+                    <input 
+                        type="text" 
+                        pInputText 
+                        [(ngModel)]="searchTerm"
+                        placeholder="Search by name or email"
+                        class="w-full"
+                        (keyup.enter)="onFilter()">
+                </div>
+                <div class="col-12 md:col-2">
+                    <label class="block text-900 font-medium mb-2">Role</label>
+                    <p-dropdown 
+                        [(ngModel)]="roleFilter"
+                        [options]="roleOptions"
+                        placeholder="All Roles"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        class="w-full">
+                    </p-dropdown>
+                </div>
+                <div class="col-12 md:col-2">
+                    <label class="block text-900 font-medium mb-2">Status</label>
+                    <p-dropdown 
+                        [(ngModel)]="statusFilter"
+                        [options]="statusOptions"
+                        placeholder="All Status"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        class="w-full">
+                    </p-dropdown>
+                </div>
+                <div class="col-12 md:col-5 flex align-items-end">
+                    <p-button 
+                        label="Filter" 
+                        icon="pi pi-search"
+                        class="mr-2"
+                        (click)="onFilter()">
+                    </p-button>
+                    <p-button 
+                        label="Clear" 
+                        icon="pi pi-times"
+                        class="p-button-outlined"
+                        (click)="clearFilters()">
+                    </p-button>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <p-table 
+                [value]="users" 
+                [loading]="loading"
+                [paginator]="true" 
+                [rows]="10"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                styleClass="p-datatable-gridlines">
+                
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Team</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-user>
+                    <tr>
+                        <td>
+                            <div class="flex align-items-center">
+                                <div class="bg-primary-100 text-primary-900 border-circle w-3rem h-3rem flex align-items-center justify-content-center mr-3">
+                                    <i class="pi pi-user text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-900">{{ user.first_name }} {{ user.last_name }}</div>
+                                    <div class="text-500 text-sm">{{ user.phone || 'No phone' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <p-badge 
+                                [value]="user.role" 
+                                [class]="getRoleBadgeClass(user.role)">
+                            </p-badge>
+                        </td>
+                        <td>{{ user.team?.name || 'No team' }}</td>
+                        <td>
+                            <p-badge 
+                                [value]="user.status" 
+                                [class]="getStatusBadgeClass(user.status)">
+                            </p-badge>
+                        </td>
+                        <td>{{ user.last_login_at | date:'short' || 'Never' }}</td>
+                        <td>
+                            <div class="flex gap-2">
+                                <p-button 
+                                    icon="pi pi-pencil" 
+                                    class="p-button-rounded p-button-text p-button-info"
+                                    pTooltip="Edit"
+                                    (click)="editUser(user)">
+                                </p-button>
+                                <p-button 
+                                    icon="pi pi-key" 
+                                    class="p-button-rounded p-button-text p-button-warning"
+                                    pTooltip="Reset Password"
+                                    (click)="resetPassword(user)">
+                                </p-button>
+                                <p-button 
+                                    icon="pi pi-trash" 
+                                    class="p-button-rounded p-button-text p-button-danger"
+                                    pTooltip="Delete"
+                                    (click)="deleteUser(user)">
+                                </p-button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="7" class="text-center">No users found</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- User Dialog -->
+<p-dialog 
+    [(visible)]="userDialog" 
+    [header]="user.id ? 'Edit User' : 'Add User'"
+    [modal]="true" 
+    class="p-fluid"
+    [style]="{width: '600px'}">
+    
+    <ng-template pTemplate="content">
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <label class="block text-900 font-medium mb-2">First Name *</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    [(ngModel)]="user.first_name" 
+                    required 
+                    class="w-full">
+            </div>
+            <div class="col-12 md:col-6">
+                <label class="block text-900 font-medium mb-2">Last Name *</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    [(ngModel)]="user.last_name" 
+                    required 
+                    class="w-full">
+            </div>
+            <div class="col-12">
+                <label class="block text-900 font-medium mb-2">Email *</label>
+                <input 
+                    type="email" 
+                    pInputText 
+                    [(ngModel)]="user.email" 
+                    required 
+                    class="w-full">
+            </div>
+            <div class="col-12 md:col-6">
+                <label class="block text-900 font-medium mb-2">Role *</label>
+                <p-dropdown 
+                    [(ngModel)]="user.role"
+                    [options]="roleOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="w-full">
+                </p-dropdown>
+            </div>
+            <div class="col-12 md:col-6">
+                <label class="block text-900 font-medium mb-2">Status</label>
+                <p-dropdown 
+                    [(ngModel)]="user.status"
+                    [options]="statusOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="w-full">
+                </p-dropdown>
+            </div>
+            <div class="col-12 md:col-6">
+                <label class="block text-900 font-medium mb-2">Phone</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    [(ngModel)]="user.phone" 
+                    class="w-full">
+            </div>
+            <div class="col-12 md:col-6">
+                <label class="block text-900 font-medium mb-2">Team</label>
+                <p-dropdown 
+                    [(ngModel)]="user.team"
+                    [options]="teams"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Select Team"
+                    [showClear]="true"
+                    class="w-full">
+                </p-dropdown>
+            </div>
+            <div class="col-12" *ngIf="user.role === 'formateur'">
+                <label class="block text-900 font-medium mb-2">Speciality</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    [(ngModel)]="user.specialite" 
+                    placeholder="e.g., Angular & TypeScript"
+                    class="w-full">
+            </div>
+        </div>
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="Cancel" 
+            icon="pi pi-times" 
+            class="p-button-text"
+            (click)="hideDialog()">
+        </p-button>
+        <p-button 
+            label="Save" 
+            icon="pi pi-check" 
+            class="p-button-text"
+            (click)="saveUser()">
+        </p-button>
+    </ng-template>
+</p-dialog>
+
+<!-- Delete Confirmation Dialog -->
+<p-dialog 
+    [(visible)]="deleteUserDialog" 
+    header="Confirm Delete" 
+    [modal]="true" 
+    [style]="{width:'450px'}">
+    
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>Are you sure you want to delete <b>{{ user.first_name }} {{ user.last_name }}</b>?</span>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="No" 
+            icon="pi pi-times" 
+            class="p-button-text"
+            (click)="deleteUserDialog = false">
+        </p-button>
+        <p-button 
+            label="Yes" 
+            icon="pi pi-check" 
+            class="p-button-text"
+            (click)="confirmDelete()">
+        </p-button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

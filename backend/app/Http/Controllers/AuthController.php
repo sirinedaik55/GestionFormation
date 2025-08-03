@@ -8,12 +8,21 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Sanctum\PersonalAccessToken;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
     /**
-     * Login user and create token
+     * Create a new AuthController instance.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+    }
+
+    /**
+     * Get a JWT via given credentials.
      */
     public function login(Request $request)
     {
@@ -32,11 +41,39 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (!Auth::attempt($credentials)) {
+        try {
+            // Check if user exists and is active
+            $user = User::where('email', $credentials['email'])->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 401);
+            }
+
+            if ($user->status !== 'active') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Account is inactive. Please contact administrator.'
+                ], 401);
+            }
+
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid credentials'
+                ], 401);
+            }
+
+            // Update last login timestamp
+            $user->update(['last_login_at' => now()]);
+
+        } catch (JWTException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid credentials'
-            ], 401);
+                'message' => 'Could not create token'
+            ], 500);
         }
 
         $user = Auth::user();
@@ -52,26 +89,29 @@ class AuthController extends Controller
         // Update last login timestamp
         $user->updateLastLogin();
 
-        // Create token
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
             'data' => [
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => JWTAuth::factory()->getTTL() * 60,
                 'user' => [
                     'id' => $user->id,
-                    'name' => $user->name,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
                     'email' => $user->email,
                     'role' => $user->role,
                     'team_id' => $user->team_id,
-                    'team' => $user->team ? $user->team->name : null,
-                    'specialite' => $user->specialite,
                     'phone' => $user->phone,
-                    'status' => $user->status
-                ],
-                'token' => $token,
-                'token_type' => 'Bearer'
+                    'specialite' => $user->specialite,
+                    'status' => $user->status,
+                    'team' => $user->team ? [
+                        'id' => $user->team->id,
+                        'name' => $user->team->name,
+                        'specialite' => $user->team->specialite
+                    ] : null
+                ]
             ]
         ]);
     }
@@ -134,46 +174,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-    /**
-     * Get current authenticated user
-     */
-    public function me(Request $request)
-    {
-        $user = $request->user();
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                    'team_id' => $user->team_id,
-                    'team' => $user->team ? $user->team->name : null,
-                    'specialite' => $user->specialite,
-                    'phone' => $user->phone,
-                    'status' => $user->status,
-                    'date_debut' => $user->date_debut,
-                    'date_fin' => $user->date_fin,
-                    'room' => $user->room
-                ]
-            ]
-        ]);
-    }
 
-    /**
-     * Logout user (Revoke token)
-     */
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Logged out successfully'
-        ]);
-    }
 
     /**
      * Logout from all devices
@@ -226,24 +227,74 @@ class AuthController extends Controller
     }
 
     /**
-     * Refresh token
+     * Log the user out (Invalidate the token).
      */
-    public function refresh(Request $request)
+    public function logout()
     {
-        $user = $request->user();
-        
-        // Revoke current token
-        $request->user()->currentAccessToken()->delete();
-        
-        // Create new token
-        $token = $user->createToken('auth_token')->plainTextToken;
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully logged out'
+            ]);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to logout'
+            ], 500);
+        }
+    }
+
+    /**
+     * Refresh a token.
+     */
+    public function refresh()
+    {
+        try {
+            $token = JWTAuth::refresh(JWTAuth::getToken());
+            return response()->json([
+                'success' => true,
+                'message' => 'Token refreshed successfully',
+                'data' => [
+                    'access_token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => JWTAuth::factory()->getTTL() * 60
+                ]
+            ]);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token cannot be refreshed'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get the authenticated User.
+     */
+    public function me()
+    {
+        $user = Auth::user();
 
         return response()->json([
             'success' => true,
-            'message' => 'Token refreshed successfully',
             'data' => [
-                'token' => $token,
-                'token_type' => 'Bearer'
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'team_id' => $user->team_id,
+                'phone' => $user->phone,
+                'specialite' => $user->specialite,
+                'status' => $user->status,
+                'team' => $user->team ? [
+                    'id' => $user->team->id,
+                    'name' => $user->team->name,
+                    'specialite' => $user->team->specialite
+                ] : null,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at
             ]
         ]);
     }

@@ -8,6 +8,7 @@ import { CardModule } from 'primeng/card';
 import { CalendarModule } from 'primeng/calendar';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { PanelModule } from 'primeng/panel';
@@ -47,6 +48,7 @@ import { TrainerFormationCalendarComponent } from './calendar/trainer-formation-
         CalendarModule,
         DialogModule,
         DropdownModule,
+        FileUploadModule,
         InputTextModule,
         InputTextareaModule,
         PanelModule,

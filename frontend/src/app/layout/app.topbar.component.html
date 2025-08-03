@@ -1,7 +1,7 @@
 <div class="layout-topbar">
     <a class="layout-topbar-logo" routerLink="">
-        <img src="assets/layout/images/{{layoutService.config.colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="logo">
-        <span>Formation</span>
+        <img src="assets/asm.jpeg" alt="ASM Logo" style="height: 2.5rem; width: auto; border-radius: 8px;">
+        <span>ASM Formation</span>
     </a>
 
     <button class="p-link layout-menu-button layout-topbar-button p-trigger" (click)="layoutService.onMenuToggle()">
@@ -13,6 +13,11 @@
     </button>
 
     <div class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+        <!-- Language Selector -->
+        <div class="layout-topbar-button">
+            <app-language-selector></app-language-selector>
+        </div>
+
         <!-- User Info Display -->
         <div class="layout-topbar-button" *ngIf="currentUser">
             <div class="flex align-items-center gap-2">

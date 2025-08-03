@@ -9,11 +9,14 @@ export class AppInitService {
     constructor(private authService: KeycloakAuthService) {}
 
     async initializeApp(): Promise<void> {
-        try {
-            // Initialize authentication service
-            await this.authService.initializeAuth();
-        } catch (error) {
-            console.error('Failed to initialize app:', error);
-        }
+        // Simple initialization that never blocks
+        console.log('Initializing app...');
+
+        // Initialize auth service in background without blocking
+        this.authService.initializeAuth().catch(error => {
+            console.warn('Auth initialization failed, using fallback:', error);
+        });
+
+        console.log('App initialization complete');
     }
 }

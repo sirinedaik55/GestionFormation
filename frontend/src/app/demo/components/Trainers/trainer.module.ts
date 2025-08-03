@@ -33,6 +33,9 @@ import { TagModule } from 'primeng/tag';
 // Routing
 import { TrainerRoutingModule } from './trainer-routing.module';
 
+// Shared module for translations
+import { SharedModule } from '../../../shared/shared.module';
+
 // Components
 import { TrainerDashboardComponent } from './dashboard/trainer-dashboard.component';
 
@@ -71,7 +74,8 @@ import { TrainerDashboardComponent } from './dashboard/trainer-dashboard.compone
         SliderModule,
         SkeletonModule,
         ProgressSpinnerModule,
-        TagModule
+        TagModule,
+        SharedModule
     ]
 })
 export class TrainerModule { }

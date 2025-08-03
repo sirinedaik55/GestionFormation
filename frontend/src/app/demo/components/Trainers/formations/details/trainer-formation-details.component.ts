@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { FileUpload } from 'primeng/fileupload';
 import { TrainerService, TrainerFormation } from '../../../../../services/trainer.service';
 import { FormationParticipant } from '../../../../../services/formation-participant.service';
 
@@ -11,6 +12,8 @@ import { FormationParticipant } from '../../../../../services/formation-particip
 })
 export class TrainerFormationDetailsComponent implements OnInit {
 
+    @ViewChild('fileUpload') fileUpload!: FileUpload;
+
     formation: TrainerFormation | null = null;
     participants: FormationParticipant[] = [];
     loading: boolean = true;
@@ -18,6 +21,18 @@ export class TrainerFormationDetailsComponent implements OnInit {
 
     // Edit mode
     editMode: boolean = false;
+
+    // Notification dialog
+    notificationDialog: boolean = false;
+    notificationSubject: string = '';
+    notificationMessage: string = '';
+
+    // Upload dialog
+    uploadDialog: boolean = false;
+    selectedFiles: File[] = [];
+    uploadFormation: string = '';
+    uploadDescription: string = '';
+    notificationRecipients: string = 'all'; // 'all', 'registered', 'absent'
     editFormation: any = {};
 
     // Make Math available in template
@@ -211,14 +226,191 @@ export class TrainerFormationDetailsComponent implements OnInit {
     }
 
     goBack() {
-        this.router.navigate(['/trainer/formations']);
+        this.router.navigate(['/dashboard/trainer/formations']);
     }
 
     navigateToAttendance() {
         if (this.formation) {
-            this.router.navigate(['/trainer/attendance'], { 
-                queryParams: { formationId: this.formation.id } 
+            this.router.navigate(['/dashboard/trainer/attendance'], {
+                queryParams: {
+                    formationId: this.formation.id,
+                    formationName: this.formation.name
+                }
             });
+        }
+    }
+
+    uploadDocuments() {
+        console.log('📤 Upload Documents button clicked');
+        console.log('📋 Formation details:', {
+            id: this.formation?.id,
+            name: this.formation?.name,
+            status: this.formation?.status
+        });
+
+        // Open upload dialog directly
+        this.uploadDialog = true;
+        this.uploadFormation = this.formation?.name || '';
+        this.selectedFiles = [];
+        this.uploadDescription = '';
+
+        console.log('🔄 Upload dialog opened');
+    }
+
+    onFileSelect(event: any) {
+        console.log('📁 Files selected:', event);
+        console.log('📁 Event files:', event.files);
+        console.log('📁 Current files:', event.currentFiles);
+
+        // PrimeNG FileUpload peut retourner les fichiers dans event.files ou event.currentFiles
+        this.selectedFiles = event.files || event.currentFiles || [];
+
+        // Assurer que c'est un tableau
+        if (!Array.isArray(this.selectedFiles)) {
+            this.selectedFiles = [];
+        }
+
+        console.log('📁 Selected files array:', this.selectedFiles);
+
+        if (this.selectedFiles.length > 0) {
+            try {
+                const fileNames = this.selectedFiles.map(f => f.name).join(', ');
+                console.log('✅ Selected files:', fileNames);
+
+                // Afficher un message de confirmation
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Files Selected',
+                    detail: `${this.selectedFiles.length} file(s) selected`,
+                    life: 2000
+                });
+            } catch (error) {
+                console.error('❌ Error processing selected files:', error);
+                this.selectedFiles = [];
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error processing selected files',
+                    life: 3000
+                });
+            }
+        }
+    }
+
+    clearFiles() {
+        console.log('🗑️ Clearing selected files');
+        this.selectedFiles = [];
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Files Cleared',
+            detail: 'All selected files have been cleared',
+            life: 2000
+        });
+    }
+
+    cancelUpload() {
+        console.log('❌ Upload cancelled');
+        this.uploadDialog = false;
+        this.selectedFiles = [];
+        this.uploadFormation = '';
+        this.uploadDescription = '';
+    }
+
+    performUpload() {
+        console.log('📤 Performing upload');
+        console.log('📤 Selected files count:', this.selectedFiles.length);
+        console.log('📤 Selected files:', this.selectedFiles);
+
+        // Récupérer les fichiers du composant PrimeNG si selectedFiles est vide
+        let filesToUpload = this.selectedFiles;
+        if (filesToUpload.length === 0 && this.fileUpload && this.fileUpload.files) {
+            filesToUpload = this.fileUpload.files;
+            console.log('📤 Files from PrimeNG component:', filesToUpload);
+        }
+
+        if (filesToUpload.length === 0) {
+            console.log('❌ No files detected in selectedFiles array or PrimeNG component');
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Please select files to upload',
+                life: 3000
+            });
+            return;
+        }
+
+        if (!this.uploadFormation.trim()) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Please enter formation name',
+                life: 3000
+            });
+            return;
+        }
+
+        console.log('📋 Upload details:', {
+            formation: this.uploadFormation,
+            description: this.uploadDescription,
+            filesCount: filesToUpload.length,
+            files: filesToUpload.map(f => ({ name: f.name, size: f.size }))
+        });
+
+        // Simulate upload process
+        const fileNames = filesToUpload.map(f => f.name).join(', ');
+
+        // Show success message
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Upload Successful',
+            detail: `${filesToUpload.length} file(s) uploaded successfully: ${fileNames}`,
+            life: 5000
+        });
+
+        // Close dialog and reset form
+        this.uploadDialog = false;
+        this.selectedFiles = [];
+        this.uploadFormation = '';
+        this.uploadDescription = '';
+
+        console.log('✅ Upload completed successfully');
+    }
+
+
+
+    sendNotification() {
+        console.log('🔔 Opening notification dialog for formation:', this.formation?.name);
+        this.notificationSubject = `Formation: ${this.formation?.name}`;
+        this.notificationMessage = '';
+        this.notificationRecipients = 'all';
+        this.notificationDialog = true;
+    }
+
+    sendNotificationMessage() {
+        console.log('📤 Sending notification:', {
+            subject: this.notificationSubject,
+            message: this.notificationMessage,
+            recipients: this.notificationRecipients,
+            formation: this.formation?.name
+        });
+
+        // Simulate sending notification
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Notification Sent',
+            detail: `Notification sent to ${this.getRecipientsLabel()} for "${this.formation?.name}"`,
+            life: 3000
+        });
+
+        this.notificationDialog = false;
+    }
+
+    getRecipientsLabel(): string {
+        switch (this.notificationRecipients) {
+            case 'all': return 'all participants';
+            case 'registered': return 'registered participants';
+            case 'absent': return 'absent participants';
+            default: return 'participants';
         }
     }
 

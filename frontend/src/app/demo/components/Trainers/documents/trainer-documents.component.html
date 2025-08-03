@@ -7,9 +7,9 @@
                     <h2 class="text-900 font-semibold mb-2">My Documents</h2>
                     <p class="text-600 m-0">Manage your training materials and resources</p>
                 </div>
-                <p-button 
-                    icon="pi pi-upload" 
-                    label="Upload Documents" 
+                <p-button
+                    icon="pi pi-upload"
+                    label="Upload Documents"
                     (click)="showUploadDialog()">
                 </p-button>
             </div>
@@ -99,61 +99,79 @@
 </div>
 
 <!-- Upload Dialog -->
-<p-dialog 
-    header="Upload Documents" 
-    [(visible)]="uploadDialog" 
-    [modal]="true" 
+<p-dialog
+    header="Upload Documents"
+    [(visible)]="uploadDialog"
+    [modal]="true"
     [style]="{width: '50vw'}"
     [closable]="true">
-    
-    <div class="grid">
-        <div class="col-12">
-            <label class="block text-900 font-medium mb-2">Formation</label>
-            <input 
-                type="text" 
-                pInputText 
-                [(ngModel)]="uploadFormation" 
-                placeholder="Enter formation name"
-                class="w-full" />
+
+    <ng-template pTemplate="content">
+        <div class="grid">
+            <div class="col-12">
+                <label class="block text-900 font-medium mb-2">Formation</label>
+                <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="uploadFormation"
+                    placeholder="Enter formation name"
+                    class="w-full" />
+            </div>
+
+            <div class="col-12">
+                <label class="block text-900 font-medium mb-2">Description (Optional)</label>
+                <textarea
+                    pInputTextarea
+                    [(ngModel)]="uploadDescription"
+                    rows="3"
+                    placeholder="Enter document description"
+                    class="w-full">
+                </textarea>
+            </div>
+
+            <div class="col-12">
+                <label class="block text-900 font-medium mb-2">Files</label>
+                <p-fileUpload
+                    #fileUpload
+                    mode="advanced"
+                    [multiple]="true"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar"
+                    [maxFileSize]="10000000"
+                    (onSelect)="onFileSelect($event)"
+                    [auto]="false"
+                    chooseLabel="Choose Files"
+                    uploadLabel="Upload"
+                    cancelLabel="Clear"
+                    [showUploadButton]="false"
+                    [showCancelButton]="true">
+                </p-fileUpload>
+
+                <!-- Selected Files Display -->
+                <div *ngIf="selectedFiles.length > 0" class="mt-3">
+                    <h6 class="text-900 mb-2">Selected Files ({{ selectedFiles.length }}):</h6>
+                    <div class="flex flex-column gap-2">
+                        <div *ngFor="let file of selectedFiles" class="flex align-items-center gap-2 p-2 border-1 border-300 border-round">
+                            <i class="pi pi-file text-primary"></i>
+                            <span class="flex-1">{{ file.name }}</span>
+                            <small class="text-500">{{ (file.size / 1024 / 1024).toFixed(2) }} MB</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div class="col-12">
-            <label class="block text-900 font-medium mb-2">Description (Optional)</label>
-            <textarea 
-                pInputTextarea 
-                [(ngModel)]="uploadDescription" 
-                rows="3" 
-                placeholder="Enter document description"
-                class="w-full">
-            </textarea>
-        </div>
-        
-        <div class="col-12">
-            <label class="block text-900 font-medium mb-2">Files</label>
-            <p-fileUpload 
-                mode="advanced" 
-                [multiple]="true"
-                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar"
-                [maxFileSize]="10000000"
-                (onSelect)="onFileSelect($event)"
-                [auto]="false"
-                chooseLabel="Choose Files"
-                uploadLabel="Upload"
-                cancelLabel="Clear">
-            </p-fileUpload>
-        </div>
-    </div>
-    
+    </ng-template>
+
     <ng-template pTemplate="footer">
-        <p-button 
-            label="Cancel" 
-            icon="pi pi-times" 
+        <p-button
+            label="Cancel"
+            icon="pi pi-times"
             class="p-button-text"
-            (click)="uploadDialog = false">
+            (click)="cancelUpload()">
         </p-button>
-        <p-button 
-            label="Upload" 
-            icon="pi pi-upload" 
+        <p-button
+            label="Upload"
+            icon="pi pi-upload"
+            [disabled]="selectedFiles.length === 0"
             (click)="uploadDocuments()">
         </p-button>
     </ng-template>

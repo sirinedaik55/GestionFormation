@@ -118,22 +118,18 @@
                     [disabled]="formation.status !== 'ongoing' && formation.status !== 'upcoming'"
                     (click)="navigateToAttendance()">
                 </p-button>
-                <p-button 
-                    label="Upload Documents" 
-                    icon="pi pi-upload" 
-                    class="w-full p-button-outlined">
-                </p-button>
-                <p-button 
-                    label="Create Report" 
-                    icon="pi pi-file-pdf" 
+                <p-button
+                    label="Upload Documents"
+                    icon="pi pi-upload"
                     class="w-full p-button-outlined"
-                    [disabled]="formation.status !== 'completed'">
+                    (click)="uploadDocuments()">
                 </p-button>
-                <p-button 
-                    label="Send Notification" 
-                    icon="pi pi-send" 
+                <p-button
+                    label="Send Notification"
+                    icon="pi pi-send"
                     class="w-full p-button-outlined"
-                    [disabled]="formation.status === 'completed' || formation.status === 'cancelled'">
+                    [disabled]="formation.status === 'completed' || formation.status === 'cancelled'"
+                    (click)="sendNotification()">
                 </p-button>
             </div>
         </div>
@@ -240,5 +236,151 @@
         <p class="text-500 mt-3">Loading formation details...</p>
     </div>
 </div>
+
+<!-- Send Notification Dialog -->
+<p-dialog
+    header="Send Notification"
+    [(visible)]="notificationDialog"
+    [modal]="true"
+    [style]="{width: '50vw'}"
+    [closable]="true">
+
+    <div class="grid">
+        <div class="col-12">
+            <label for="notificationSubject" class="block text-900 font-medium mb-2">Subject</label>
+            <input
+                id="notificationSubject"
+                type="text"
+                pInputText
+                [(ngModel)]="notificationSubject"
+                class="w-full"
+                placeholder="Enter notification subject">
+        </div>
+
+        <div class="col-12">
+            <label for="notificationRecipients" class="block text-900 font-medium mb-2">Recipients</label>
+            <p-dropdown
+                id="notificationRecipients"
+                [(ngModel)]="notificationRecipients"
+                [options]="[
+                    {label: 'All Participants', value: 'all'},
+                    {label: 'Registered Participants Only', value: 'registered'},
+                    {label: 'Absent Participants Only', value: 'absent'}
+                ]"
+                optionLabel="label"
+                optionValue="value"
+                class="w-full">
+            </p-dropdown>
+        </div>
+
+        <div class="col-12">
+            <label for="notificationMessage" class="block text-900 font-medium mb-2">Message</label>
+            <textarea
+                id="notificationMessage"
+                pInputTextarea
+                [(ngModel)]="notificationMessage"
+                rows="5"
+                class="w-full"
+                placeholder="Enter your notification message...">
+            </textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Cancel"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="notificationDialog = false">
+        </p-button>
+        <p-button
+            label="Send Notification"
+            icon="pi pi-send"
+            [disabled]="!notificationSubject || !notificationMessage"
+            (click)="sendNotificationMessage()">
+        </p-button>
+    </ng-template>
+</p-dialog>
+
+<!-- Upload Documents Dialog -->
+<p-dialog
+    header="Upload Documents"
+    [(visible)]="uploadDialog"
+    [modal]="true"
+    [style]="{width: '50vw'}"
+    [closable]="true">
+
+    <ng-template pTemplate="content">
+        <div class="grid">
+            <div class="col-12">
+                <label class="block text-900 font-medium mb-2">Formation</label>
+                <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="uploadFormation"
+                    placeholder="Formation name"
+                    class="w-full"
+                    readonly />
+            </div>
+
+            <div class="col-12">
+                <label class="block text-900 font-medium mb-2">Description (Optional)</label>
+                <textarea
+                    pInputTextarea
+                    [(ngModel)]="uploadDescription"
+                    rows="3"
+                    placeholder="Enter document description"
+                    class="w-full">
+                </textarea>
+            </div>
+
+            <div class="col-12">
+                <label class="block text-900 font-medium mb-2">Files</label>
+                <p-fileUpload
+                    #fileUpload
+                    mode="advanced"
+                    [multiple]="true"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar"
+                    [maxFileSize]="10000000"
+                    (onSelect)="onFileSelect($event)"
+                    (onClear)="clearFiles()"
+                    [auto]="false"
+                    chooseLabel="Choose Files"
+                    uploadLabel="Upload"
+                    cancelLabel="Clear"
+                    [showUploadButton]="false"
+                    [showCancelButton]="true">
+                </p-fileUpload>
+
+                <!-- Selected Files Display -->
+                <div *ngIf="selectedFiles.length > 0" class="mt-3">
+                    <h6 class="text-900 mb-2">Selected Files ({{ selectedFiles.length }}):</h6>
+                    <div class="flex flex-column gap-2">
+                        <div *ngFor="let file of selectedFiles" class="flex align-items-center gap-2 p-2 border-1 border-300 border-round">
+                            <i class="pi pi-file text-primary"></i>
+                            <span class="flex-1">{{ file.name }}</span>
+                            <small class="text-500">{{ (file.size / 1024 / 1024).toFixed(2) }} MB</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Cancel"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="cancelUpload()">
+        </p-button>
+        <p-button
+            label="Upload"
+            icon="pi pi-upload"
+            [disabled]="selectedFiles.length === 0"
+            (click)="performUpload()">
+        </p-button>
+    </ng-template>
+</p-dialog>
 
 <p-toast></p-toast>

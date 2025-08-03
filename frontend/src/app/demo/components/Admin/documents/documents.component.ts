@@ -75,12 +75,25 @@ export class DocumentsComponent implements OnInit {
   }
 
   onFileSelect(event: any) {
-    const file = event.files[0];
-    if (file) {
-      this.selectedFile = file;
-      if (!this.customFileName) {
-        this.customFileName = file.name;
+    console.log('📁 Admin file select event:', event);
+    console.log('📁 Event files:', event.files);
+    console.log('📁 Current files:', event.currentFiles);
+
+    // PrimeNG FileUpload peut retourner les fichiers dans event.files ou event.currentFiles
+    const files = event.files || event.currentFiles || [];
+
+    // Assurer que c'est un tableau et prendre le premier fichier
+    if (Array.isArray(files) && files.length > 0) {
+      this.selectedFile = files[0];
+      if (!this.customFileName && this.selectedFile) {
+        this.customFileName = this.selectedFile.name;
       }
+      if (this.selectedFile) {
+        console.log('✅ Selected file:', this.selectedFile.name);
+      }
+    } else {
+      console.log('❌ No files selected or invalid format');
+      this.selectedFile = null;
     }
   }
 

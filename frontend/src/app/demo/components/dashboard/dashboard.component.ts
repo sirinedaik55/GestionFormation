@@ -1,11 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { StatisticsService, DashboardStats, MonthlyFormations } from '../../../services/statistics.service';
 import { FormationService } from '../../../services/formation.service';
+import { RoleService, UserRole } from '../../../services/role.service';
+import { SimpleAuthService } from '../../../services/simple-auth.service';
 import { Subscription, lastValueFrom } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
 
 @Component({
     templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
@@ -19,6 +22,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     loading: boolean = true;
     loadingFormations: boolean = true;
 
+    // Role-based dashboard
+    currentRole: UserRole | null = null;
+    currentUser: any = null;
+
     // Dashboard data
     recentFormations: any[] = [];
     recentActivities: any[] = [];
@@ -26,6 +33,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     constructor(
         private statisticsService: StatisticsService,
         private formationService: FormationService,
+        public roleService: RoleService,
+        private simpleAuthService: SimpleAuthService,
         public layoutService: LayoutService
     ) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
@@ -34,9 +43,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
+        console.log('🔧 DashboardComponent: Initializing...');
+
+        // Subscribe to current user changes
+        this.simpleAuthService.currentUser$.subscribe(user => {
+            console.log('🔧 DashboardComponent: User from observable:', user);
+            this.currentUser = user;
+
+            if (user) {
+                // Map SimpleAuthService roles to dashboard roles
+                if (user.role === 'admin') {
+                    this.currentRole = 'admin';
+                } else if (user.role === 'formateur') {
+                    this.currentRole = 'trainer';
+                } else if (user.role === 'employe') {
+                    this.currentRole = 'employee';
+                } else {
+                    this.currentRole = 'admin'; // fallback
+                }
+                console.log('🔧 DashboardComponent: Mapped role:', this.currentRole);
+            } else {
+                console.log('🔧 DashboardComponent: No user found, defaulting to admin');
+                this.currentRole = 'admin';
+            }
+        });
+
         this.initChart();
         // Load statistics data
         await this.loadDashboardData();
+    }
+
+    getCurrentUserInfo(): string {
+        if (this.currentUser) {
+            return `${this.currentUser.first_name} ${this.currentUser.last_name} (${this.currentUser.role})`;
+        }
+        return 'No user found';
     }
 
     async loadDashboardData() {

@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { ApiService } from './api.service';
 
 export interface User {
     id: number;
@@ -71,7 +72,8 @@ export class AuthService {
 
     constructor(
         private http: HttpClient,
-        private router: Router
+        private router: Router,
+        private apiService: ApiService
     ) {
         // Check token validity on service initialization
         this.checkTokenValidity();
@@ -81,7 +83,7 @@ export class AuthService {
      * Login user
      */
     login(credentials: LoginRequest): Observable<LoginResponse> {
-        return this.http.post<any>(`${this.apiUrl}/auth/login`, credentials)
+        return this.apiService.post<any>('auth/login', credentials)
             .pipe(
                 tap((response: any) => {
                     if (response.success) {

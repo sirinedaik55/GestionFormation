@@ -174,12 +174,18 @@
                         <div class="col-12 md:col-6">
                             <div class="flex align-items-center justify-content-between mb-3">
                                 <label class="text-900 font-medium">Email Notifications</label>
-                                <p-inputSwitch [(ngModel)]="settings.emailNotifications"></p-inputSwitch>
+                                <p-inputSwitch
+                                    [(ngModel)]="settings.emailNotifications"
+                                    (onChange)="onNotificationToggle('Email', $event.checked)">
+                                </p-inputSwitch>
                             </div>
-                            
+
                             <div class="flex align-items-center justify-content-between mb-3">
                                 <label class="text-900 font-medium">SMS Notifications</label>
-                                <p-inputSwitch [(ngModel)]="settings.smsNotifications"></p-inputSwitch>
+                                <p-inputSwitch
+                                    [(ngModel)]="settings.smsNotifications"
+                                    (onChange)="onNotificationToggle('SMS', $event.checked)">
+                                </p-inputSwitch>
                             </div>
                             
                             <div class="flex align-items-center justify-content-between mb-3">
@@ -196,34 +202,37 @@
                         <div class="col-12 md:col-6">
                             <div class="mb-3">
                                 <label class="block text-900 font-medium mb-2">Language</label>
-                                <p-dropdown 
-                                    [(ngModel)]="settings.language" 
-                                    [options]="languageOptions" 
-                                    optionLabel="label" 
+                                <p-dropdown
+                                    [(ngModel)]="settings.language"
+                                    [options]="languageOptions"
+                                    optionLabel="label"
                                     optionValue="value"
-                                    styleClass="w-full">
+                                    styleClass="w-full"
+                                    (onChange)="onLanguageChange($event)">
                                 </p-dropdown>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="block text-900 font-medium mb-2">Theme</label>
-                                <p-dropdown 
-                                    [(ngModel)]="settings.theme" 
-                                    [options]="themeOptions" 
-                                    optionLabel="label" 
+                                <p-dropdown
+                                    [(ngModel)]="settings.theme"
+                                    [options]="themeOptions"
+                                    optionLabel="label"
                                     optionValue="value"
-                                    styleClass="w-full">
+                                    styleClass="w-full"
+                                    (onChange)="onThemeChange($event)">
                                 </p-dropdown>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="block text-900 font-medium mb-2">Timezone</label>
-                                <p-dropdown 
-                                    [(ngModel)]="settings.timezone" 
-                                    [options]="timezoneOptions" 
-                                    optionLabel="label" 
+                                <p-dropdown
+                                    [(ngModel)]="settings.timezone"
+                                    [options]="timezoneOptions"
+                                    optionLabel="label"
                                     optionValue="value"
-                                    styleClass="w-full">
+                                    styleClass="w-full"
+                                    (onChange)="onTimezoneChange($event)">
                                 </p-dropdown>
                             </div>
                         </div>

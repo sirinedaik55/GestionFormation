@@ -8,14 +8,19 @@ use App\Models\User;
 use App\Models\Team;
 use App\Models\FormationParticipant;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class StatisticsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     /**
      * Statistiques du dashboard
      */
-    public function dashboard()
+    public function getDashboardStats()
     {
         $totalFormations = Formation::count();
         $totalEmployees = User::where('role', 'employe')->count();
