@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { EmployeeService, EmployeeStats, EmployeeFormation } from '../../../../services/employee.service';
-import { lastValueFrom } from 'rxjs';
+import { SimpleAuthService } from '../../../../services/simple-auth.service';
 
 @Component({
     selector: 'app-employee-dashboard',
@@ -24,7 +24,8 @@ export class EmployeeDashboardComponent implements OnInit {
     constructor(
         private employeeService: EmployeeService,
         private messageService: MessageService,
-        private router: Router
+        private router: Router,
+        private authService: SimpleAuthService
     ) {
         this.initializeChartOptions();
     }
@@ -59,12 +60,18 @@ export class EmployeeDashboardComponent implements OnInit {
     // Mock data method (to be replaced with real API calls)
     private async getMockStats(): Promise<EmployeeStats> {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
+        // Get current user from auth service
+        const currentUser = this.authService.getCurrentUser();
+        const userName = currentUser ? `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() : 'Employee';
+        const userEmail = currentUser?.email || 'employee@formation.com';
+        const userTeam = currentUser?.team || 'Development Team';
+
         return {
             employee_info: {
-                name: 'John Doe',
-                email: 'employee@formation.com',
-                team: 'Development Team',
+                name: userName,
+                email: userEmail,
+                team: userTeam,
                 team_speciality: 'Web Development'
             },
             formation_stats: {
@@ -234,23 +241,28 @@ export class EmployeeDashboardComponent implements OnInit {
 
     // Navigation methods
     navigateToFormations() {
-        this.router.navigate(['/employee/formations']);
+        console.log('🔄 Navigating to employee formations...');
+        this.router.navigate(['/dashboard/employee/formations']);
     }
 
     navigateToHistory() {
-        this.router.navigate(['/employee/history']);
+        console.log('🔄 Navigating to employee history...');
+        this.router.navigate(['/dashboard/employee/history']);
     }
 
     navigateToDocuments() {
-        this.router.navigate(['/employee/documents']);
+        console.log('🔄 Navigating to employee documents...');
+        this.router.navigate(['/dashboard/employee/documents']);
     }
 
     navigateToProfile() {
-        this.router.navigate(['/employee/profile']);
+        console.log('🔄 Navigating to employee profile...');
+        this.router.navigate(['/dashboard/employee/profile']);
     }
 
     viewFormationDetails(formation: EmployeeFormation) {
-        this.router.navigate(['/employee/formations/details', formation.id]);
+        console.log('🔄 Navigating to formation details:', formation.id);
+        this.router.navigate(['/dashboard/employee/formations/details', formation.id]);
     }
 
     // Utility methods

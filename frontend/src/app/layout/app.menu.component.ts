@@ -210,8 +210,7 @@ export class AppMenuComponent implements OnInit, OnDestroy {
                 label: 'ACCOUNT',
                 items: [
                     { label: 'Profile', icon: 'pi pi-fw pi-id-card', routerLink: ['/dashboard/employee/profile'] },
-                    { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/dashboard/employee/profile/settings'] },
-                    { label: 'Help', icon: 'pi pi-fw pi-question', routerLink: ['/pages/help'] },
+                    { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/dashboard/employee/profile'] },
                     { label: 'Logout', icon: 'pi pi-fw pi-sign-out', command: () => this.logout() }
                 ]
             }

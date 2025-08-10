@@ -55,7 +55,8 @@ export class EmployeeFormationsListComponent implements OnInit {
     }
 
     viewDetails(formation: EmployeeFormation) {
-        this.router.navigate(['/employee/formations/details', formation.id]);
+        console.log('🔄 Navigating to formation details:', formation.id);
+        this.router.navigate(['/dashboard/employee/formations/details', formation.id]);
     }
 
     // Mock data method

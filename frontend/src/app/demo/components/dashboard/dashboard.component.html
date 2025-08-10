@@ -17,27 +17,10 @@
 <div *ngIf="!currentRole" class="grid">
     <div class="col-12">
         <div class="card">
-            <h5>Chargement...</h5>
-            <p>Détection du rôle utilisateur en cours...</p>
-
-            <!-- Debug buttons for testing -->
-            <div class="mt-4">
-                <h6>Test des rôles (temporaire) :</h6>
-                <button pButton pRipple type="button"
-                        label="Admin"
-                        icon="pi pi-user-plus"
-                        class="p-button-success mr-2"
-                        (click)="roleService.loginAsAdmin(); currentRole = roleService.getCurrentRole()"></button>
-                <button pButton pRipple type="button"
-                        label="Formateur"
-                        icon="pi pi-user-edit"
-                        class="p-button-info mr-2"
-                        (click)="roleService.loginAsTrainer(); currentRole = roleService.getCurrentRole()"></button>
-                <button pButton pRipple type="button"
-                        label="Employé"
-                        icon="pi pi-user"
-                        class="p-button-warning"
-                        (click)="roleService.loginAsEmployee(); currentRole = roleService.getCurrentRole()"></button>
+            <div class="text-center py-5">
+                <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
+                <h5>Chargement...</h5>
+                <p class="text-500">Détection du rôle utilisateur en cours...</p>
             </div>
         </div>
     </div>

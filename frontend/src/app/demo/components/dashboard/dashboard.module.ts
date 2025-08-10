@@ -14,6 +14,7 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
 import { DashboardsRoutingModule } from './dashboard-routing.module';
 import { StatisticsService } from '../../../services/statistics.service';
 import { RoleService } from '../../../services/role.service';
@@ -35,6 +36,7 @@ import { SharedModule } from '../../../shared/shared.module';
         ButtonModule,
         TagModule,
         TooltipModule,
+        ToastModule,
         DashboardsRoutingModule,
         HttpClientModule,
         SharedModule

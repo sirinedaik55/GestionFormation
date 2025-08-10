@@ -388,20 +388,27 @@ export class AuthService {
         const user = this.getCurrentUserValue();
         if (!user) return;
 
+        console.log('🔄 AuthService: Redirecting user after login:', user);
+        console.log('🔄 AuthService: User role:', user.role);
+
         switch (user.role) {
             case 'admin':
-                this.router.navigate(['/']);
+                console.log('🔄 AuthService: Redirecting to admin dashboard');
+                this.router.navigate(['/dashboard']);
                 break;
             case 'trainer':
             case 'formateur':
-                this.router.navigate(['/trainer']);
+                console.log('🔄 AuthService: Redirecting to trainer dashboard');
+                this.router.navigate(['/dashboard/trainer']);
                 break;
             case 'employee':
             case 'employe':
-                this.router.navigate(['/employee']);
+                console.log('🔄 AuthService: Redirecting to employee dashboard');
+                this.router.navigate(['/dashboard/employee']);
                 break;
             default:
-                this.router.navigate(['/']);
+                console.log('🔄 AuthService: Unknown role, redirecting to default dashboard');
+                this.router.navigate(['/dashboard']);
         }
     }
 }

@@ -193,60 +193,69 @@ export class SimpleAuthService {
     }
 
     login(credentials: LoginRequest): Observable<any> {
-        console.log('SimpleAuthService.login called with:', credentials);
+    console.log('SimpleAuthService.login called with:', credentials);
 
-        // Use real API for authentication
-        return this.http.post(`${this.apiService.getApiUrl()}/auth/login`, credentials)
-            .pipe(
-                map((response: any) => {
-                    console.log('API login response:', response);
+    return this.http.post(`${this.apiService.getApiUrl()}/auth/login`, credentials).pipe(
+        map((response: any) => {
+            console.log('API login response:', JSON.stringify(response, null, 2));
 
-                    if (response.success && (response.user || response.data)) {
-                        // Get user data from response.user or response.data
-                        const userData = response.user || response.data;
+            if (response.success && (response.user || response.data)) {
+                // Extraire correctement les données utilisateur
+                const userData = response.user || response.data.user || response.data;
+                console.log('🔍 Extracted user data:', userData);
 
-                        // Store user and token
-                        localStorage.setItem('currentUser', JSON.stringify(userData));
-                        localStorage.setItem('authToken', response.access_token || response.token || 'api-token');
-
-                        // Update subjects
-                        this.currentUserSubject.next(userData);
-                        this.isAuthenticatedSubject.next(true);
-
-                        console.log('✅ Login successful, user data:', userData);
-
-                        return {
-                            success: true,
-                            message: response.message || `Welcome ${userData.first_name} ${userData.last_name}!`,
-                            user: userData
-                        };
-                    } else {
-                        console.log('❌ Login failed, response:', response);
-                        return {
-                            success: false,
-                            message: response.message || 'Login failed'
-                        };
-                    }
-                }),
-                catchError((error) => {
-                    console.error('Login API error:', error);
-
-                    let errorMessage = 'Login failed';
-                    if (error.error && error.error.message) {
-                        errorMessage = error.error.message;
-                    } else if (error.status === 401) {
-                        errorMessage = 'Invalid credentials';
-                    } else if (error.status === 0) {
-                        errorMessage = 'Cannot connect to server';
-                    }
-
-                    return of({
+                // Vérifier la présence et la validité du rôle
+                if (!userData.role || !['admin', 'formateur', 'employe'].includes(userData.role)) {
+                    console.error('Rôle invalide ou manquant dans la réponse:', userData);
+                    return {
                         success: false,
-                        message: errorMessage
-                    });
-                })
-            );
-    }
+                        message: 'Rôle utilisateur invalide ou manquant'
+                    };
+                }
+
+                // Stocker l'utilisateur et le token
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                const token = response.access_token || response.data?.access_token || response.token || 'api-token';
+                localStorage.setItem('authToken', token);
+                console.log('🔑 Token stored:', token.substring(0, 20) + '...');
+
+                this.currentUserSubject.next(userData);
+                this.isAuthenticatedSubject.next(true);
+
+                console.log('✅ Connexion réussie, données utilisateur:', userData);
+
+                return {
+                    success: true,
+                    message: response.message || `Bienvenue ${userData.first_name} ${userData.last_name} !`,
+                    user: userData
+                };
+            } else {
+                console.log('❌ Échec de la connexion, réponse:', response);
+                return {
+                    success: false,
+                    message: response.message || 'Échec de la connexion'
+                };
+            }
+        }),
+        catchError((error) => {
+            console.error('Erreur API de connexion:', error);
+
+            let errorMessage = 'Échec de la connexion';
+            if (error.error && error.error.message) {
+                errorMessage = error.error.message;
+            } else if (error.status === 401) {
+                errorMessage = 'Identifiants invalides';
+            } else if (error.status === 0) {
+                errorMessage = 'Impossible de se connecter au serveur';
+            }
+
+            return of({
+                success: false,
+                message: errorMessage
+            });
+        })
+    );
+}
 
     logout(): void {
         // Clear localStorage
@@ -289,17 +298,24 @@ export class SimpleAuthService {
         const user = this.getCurrentUser();
         if (!user) return;
 
+        console.log('🔄 Redirecting user after login:', user);
+        console.log('🔄 User role:', user.role);
+
         switch (user.role) {
             case 'admin':
+                console.log('🔄 Redirecting to admin dashboard');
                 this.router.navigate(['/dashboard']);
                 break;
             case 'formateur':
-                this.router.navigate(['/dashboard']);
+                console.log('🔄 Redirecting to trainer dashboard');
+                this.router.navigate(['/dashboard/trainer']);
                 break;
             case 'employe':
-                this.router.navigate(['/dashboard']);
+                console.log('🔄 Redirecting to employee dashboard');
+                this.router.navigate(['/dashboard/employee']);
                 break;
             default:
+                console.log('🔄 Unknown role, redirecting to default dashboard');
                 this.router.navigate(['/dashboard']);
         }
     }
